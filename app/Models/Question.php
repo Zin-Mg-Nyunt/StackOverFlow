@@ -9,6 +9,7 @@ class Question extends Model
 {
     /** @use HasFactory<\Database\Factories\QuestionFactory> */
     use HasFactory;
+    protected $guarded = ['id'];
 
     public function author(){
         return $this->belongsTo(User::class,'user_id');

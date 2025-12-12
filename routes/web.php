@@ -16,8 +16,8 @@ Route::get('/questions/{id}',function($id){
         'question' => Question::findOrFail($id)
     ]);
 })->name('questions.detail');
-// Route::get('dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('dashboard', function () {
+    return Inertia::render('Dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__.'/settings.php';

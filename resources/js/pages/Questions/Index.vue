@@ -1,428 +1,61 @@
 <script setup>
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import { onMounted, ref, watch } from 'vue';
-
-dayjs.extend(relativeTime);
-
-const formatTime = (time) => {
-    return dayjs(time).fromNow();
-};
-const isDark = ref(true);
-let { questions } = defineProps({
-    questions: Array,
-});
-
-const navigation = [
-    { label: 'Home', active: true },
-    { label: 'Tags' },
-    { label: 'Users' },
-    { label: 'Companies' },
-    { label: 'Collectives' },
-];
+import SingleQuestion from '../components/SingleQuestion.vue';
 
 const filters = ['Interesting', 'Bountied', 'Hot', 'Week', 'Month'];
 
-const highlights = [
-    { title: 'Roadmap: Async server actions for Laravel', link: '#' },
-    { title: 'Design deep-dive: semantic spacing with Tailwind v4', link: '#' },
-    { title: 'Case study: migrating to Inertia v2 polling', link: '#' },
-];
-
-const trendingTags = [
-    { name: 'inertiajs', delta: '+48%' },
-    { name: 'tailwindcss', delta: '+32%' },
-    { name: 'vue', delta: '+27%' },
-    { name: 'laravel', delta: '+19%' },
-    { name: 'mysql', delta: '+12%' },
-];
-
-const toggleTheme = () => {
-    isDark.value = !isDark.value;
-};
-
-watch(
-    isDark,
-    (value) => {
-        document.documentElement.classList.toggle('dark', value);
-    },
-    { immediate: true },
-);
-
-onMounted(() => {
-    document.documentElement.classList.toggle('dark', isDark.value);
+let { questions } = defineProps({
+    questions: Array,
 });
 </script>
 
 <template>
     <div
-        class="min-h-screen bg-zinc-50 text-zinc-900 transition-colors duration-300 dark:bg-zinc-950 dark:text-zinc-50"
+        class="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
     >
-        <header
-            class="sticky top-0 z-20 border-b border-zinc-200 bg-white/80 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/80"
+        <div
+            class="bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-500 px-6 py-6 text-white"
         >
-            <div
-                class="mx-auto flex max-w-screen-2xl items-center gap-4 px-6 py-4"
-            >
-                <div class="flex items-center gap-3">
-                    <div
-                        class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 via-indigo-500 to-blue-600 text-lg font-semibold text-white shadow-lg shadow-sky-500/20"
-                    >
-                        SO
-                    </div>
-                    <div>
-                        <p
-                            class="text-sm font-medium text-zinc-500 dark:text-zinc-400"
-                        >
-                            Stack Overflow
-                        </p>
-                        <p
-                            class="text-base font-semibold text-zinc-900 dark:text-zinc-50"
-                        >
-                            Clone · Modern UI
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flex-1">
-                    <div
-                        class="flex items-center gap-3 rounded-xl border border-zinc-200 bg-zinc-100 px-4 py-2.5 text-sm text-zinc-600 shadow-sm transition focus-within:border-sky-400 focus-within:ring-2 focus-within:ring-sky-200 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:focus-within:ring-sky-500/30"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-4 w-4 text-zinc-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="1.5"
-                                d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 5.4 5.4a7.5 7.5 0 0 0 11.3 11.3Z"
-                            />
-                        </svg>
-                        <input
-                            class="w-full bg-transparent placeholder:text-zinc-400 focus:outline-none dark:placeholder:text-zinc-600"
-                            placeholder="Search questions, tags, users..."
-                        />
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <button
-                        class="rounded-full border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:border-sky-400 hover:bg-sky-50 dark:border-zinc-800 dark:text-zinc-200 dark:hover:border-sky-500/60 dark:hover:bg-sky-500/10"
-                    >
-                        Log in
-                    </button>
-                    <button
-                        class="rounded-full bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:brightness-105"
-                    >
-                        Sign up
-                    </button>
-                    <button
-                        class="rounded-full border border-zinc-200 p-2 text-zinc-600 transition hover:border-sky-400 hover:text-sky-500 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-sky-500/60 dark:hover:text-sky-400"
-                        @click="toggleTheme"
-                        :aria-pressed="isDark"
-                    >
-                        <span
-                            v-if="isDark"
-                            class="inline-flex items-center gap-1"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-4 w-4"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"
-                                />
-                            </svg>
-                            <span class="text-xs font-medium">Dark</span>
-                        </span>
-                        <span v-else class="inline-flex items-center gap-1">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-4 w-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.5"
-                                    d="M12 4.5v1.5m0 12v1.5m7.5-7.5h-1.5m-12 0H4.5m12.02-4.77-1.06 1.06m-7.42 7.42-1.06 1.06m0-9.54 1.06 1.06m7.42 7.42 1.06 1.06M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
-                                />
-                            </svg>
-                            <span class="text-xs font-medium">Light</span>
-                        </span>
-                    </button>
-                </div>
+            <p class="text-sm tracking-[0.2em] text-white/80 uppercase">
+                Stack Overflow
+            </p>
+            <h1 class="mt-2 text-3xl leading-tight font-bold">
+                Every developer has a tab open here.
+            </h1>
+            <p class="mt-2 max-w-2xl text-sm text-white/80">
+                Find the best answers, share what you know, and build momentum
+                with the community that ships the web.
+            </p>
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+                <button
+                    class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-sky-600 shadow-md shadow-sky-500/20 transition hover:brightness-105"
+                >
+                    Ask question
+                </button>
+                <button
+                    class="rounded-full border border-white/60 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10"
+                >
+                    Browse jobs
+                </button>
             </div>
-        </header>
-
-        <main
-            class="mx-auto grid max-w-screen-2xl grid-cols-12 gap-6 px-6 py-8"
+        </div>
+        <div
+            class="flex flex-wrap items-center gap-2 border-t border-zinc-200 px-4 py-3 dark:border-zinc-800"
         >
-            <aside class="col-span-12 lg:col-span-2">
-                <div
-                    class="sticky top-24 space-y-2 rounded-2xl border border-zinc-200 bg-white/80 p-3 shadow-sm backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/70"
-                >
-                    <p
-                        class="px-2 text-xs font-semibold tracking-wide text-zinc-500 uppercase dark:text-zinc-400"
-                    >
-                        Explore
-                    </p>
-                    <nav class="space-y-1">
-                        <button
-                            v-for="item in navigation"
-                            :key="item.label"
-                            :class="[
-                                'flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition',
-                                item.active
-                                    ? 'bg-sky-50 text-sky-600 ring-1 ring-sky-200 dark:bg-sky-500/10 dark:text-sky-200 dark:ring-sky-500/30'
-                                    : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800',
-                            ]"
-                        >
-                            <span>{{ item.label }}</span>
-                            <span
-                                v-if="item.active"
-                                class="h-2 w-2 rounded-full bg-sky-500"
-                            />
-                        </button>
-                    </nav>
-                    <div
-                        class="mt-4 rounded-xl bg-gradient-to-br from-zinc-100 to-white p-3 text-sm text-zinc-700 ring-1 ring-zinc-200 dark:from-zinc-900 dark:to-zinc-950 dark:text-zinc-200 dark:ring-zinc-800"
-                    >
-                        <p
-                            class="font-semibold text-zinc-900 dark:text-zinc-50"
-                        >
-                            Collectives
-                        </p>
-                        <p
-                            class="mt-1 text-xs text-zinc-500 dark:text-zinc-400"
-                        >
-                            Discover trusted communities sharing knowledge.
-                        </p>
-                        <button
-                            class="mt-3 w-full rounded-lg bg-zinc-900 px-3 py-2 text-xs font-semibold text-white transition hover:brightness-110 dark:bg-white dark:text-zinc-900"
-                        >
-                            Explore collectives
-                        </button>
-                    </div>
-                </div>
-            </aside>
+            <button
+                v-for="filter in filters"
+                :key="filter"
+                class="rounded-full border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-sky-300 hover:text-sky-600 dark:border-zinc-800 dark:text-zinc-200 dark:hover:border-sky-500/60 dark:hover:text-sky-300"
+            >
+                {{ filter }}
+            </button>
+            <span class="ml-auto text-xs text-zinc-500 dark:text-zinc-400"
+                >{{ questions.length }} questions · updated live</span
+            >
+        </div>
+    </div>
 
-            <section class="col-span-12 space-y-6 lg:col-span-7">
-                <div
-                    class="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
-                >
-                    <div
-                        class="bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-500 px-6 py-6 text-white"
-                    >
-                        <p
-                            class="text-sm tracking-[0.2em] text-white/80 uppercase"
-                        >
-                            Stack Overflow
-                        </p>
-                        <h1 class="mt-2 text-3xl leading-tight font-bold">
-                            Every developer has a tab open here.
-                        </h1>
-                        <p class="mt-2 max-w-2xl text-sm text-white/80">
-                            Find the best answers, share what you know, and
-                            build momentum with the community that ships the
-                            web.
-                        </p>
-                        <div class="mt-4 flex flex-wrap items-center gap-3">
-                            <button
-                                class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-sky-600 shadow-md shadow-sky-500/20 transition hover:brightness-105"
-                            >
-                                Ask question
-                            </button>
-                            <button
-                                class="rounded-full border border-white/60 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10"
-                            >
-                                Browse jobs
-                            </button>
-                        </div>
-                    </div>
-                    <div
-                        class="flex flex-wrap items-center gap-2 border-t border-zinc-200 px-4 py-3 dark:border-zinc-800"
-                    >
-                        <button
-                            v-for="filter in filters"
-                            :key="filter"
-                            class="rounded-full border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-sky-300 hover:text-sky-600 dark:border-zinc-800 dark:text-zinc-200 dark:hover:border-sky-500/60 dark:hover:text-sky-300"
-                        >
-                            {{ filter }}
-                        </button>
-                        <span
-                            class="ml-auto text-xs text-zinc-500 dark:text-zinc-400"
-                            >4.3m questions · updated live</span
-                        >
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <article
-                        v-for="question in questions"
-                        :key="question.id"
-                        class="group rounded-2xl border border-zinc-200 bg-white/90 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/80"
-                    >
-                        <div class="flex gap-4">
-                            <div
-                                class="flex w-24 shrink-0 flex-col items-start gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400"
-                            >
-                                <div
-                                    class="rounded-lg bg-sky-500/10 px-3 py-2 text-center text-sky-600 ring-1 ring-sky-500/30 dark:text-sky-200"
-                                >
-                                    {{ question.votes }} votes
-                                </div>
-                                <div
-                                    class="rounded-lg bg-emerald-500/10 px-3 py-2 text-center text-emerald-600 ring-1 ring-emerald-500/30 dark:text-emerald-200"
-                                >
-                                    {{ question.answers }} answers
-                                </div>
-                                <div
-                                    class="rounded-lg bg-zinc-100 px-3 py-2 text-center text-zinc-700 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700"
-                                >
-                                    {{ question.views }} views
-                                </div>
-                            </div>
-                            <div class="flex-1 space-y-2">
-                                <h2
-                                    class="text-xl leading-snug font-semibold text-zinc-900 transition group-hover:text-sky-600 dark:text-zinc-50"
-                                >
-                                    {{ question.title }}
-                                </h2>
-                                <p
-                                    class="text-sm text-zinc-600 dark:text-zinc-400"
-                                >
-                                    {{ question.body }}
-                                </p>
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span
-                                        v-for="tag in question.tags"
-                                        :key="tag"
-                                        class="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700 transition hover:bg-sky-50 hover:text-sky-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-sky-500/10 dark:hover:text-sky-200"
-                                    >
-                                        {{ tag }}
-                                    </span>
-                                </div>
-                                <div
-                                    class="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400"
-                                >
-                                    <span class="flex items-center gap-2">
-                                        <span
-                                            class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-[10px] font-bold text-white"
-                                        >
-                                            {{
-                                                question.author.name
-                                                    .slice(0, 2)
-                                                    .toUpperCase()
-                                            }}
-                                        </span>
-                                        <span
-                                            class="font-semibold text-zinc-700 dark:text-zinc-200"
-                                            >{{ question.author.name }}</span
-                                        >
-                                    </span>
-                                    <span
-                                        class="h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-600"
-                                    />
-                                    <span>{{
-                                        formatTime(question.created_at)
-                                    }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                </div>
-            </section>
-
-            <aside class="col-span-12 space-y-4 lg:col-span-3">
-                <div
-                    class="rounded-2xl border border-zinc-200 bg-white/80 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
-                >
-                    <div class="flex items-center justify-between">
-                        <p
-                            class="text-sm font-semibold text-zinc-900 dark:text-zinc-50"
-                        >
-                            The Overflow blog
-                        </p>
-                        <span class="text-xs text-sky-500">New</span>
-                    </div>
-                    <ul class="mt-3 space-y-2 text-sm">
-                        <li
-                            v-for="item in highlights"
-                            :key="item.title"
-                            class="group flex items-start gap-2 rounded-lg p-2 transition hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                        >
-                            <span
-                                class="mt-1 h-2 w-2 rounded-full bg-sky-500"
-                            />
-                            <div>
-                                <p
-                                    class="font-semibold text-zinc-800 group-hover:text-sky-600 dark:text-zinc-100 dark:group-hover:text-sky-300"
-                                >
-                                    {{ item.title }}
-                                </p>
-                                <a
-                                    :href="item.link"
-                                    class="text-xs text-sky-500"
-                                    >Read more</a
-                                >
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div
-                    class="rounded-2xl border border-zinc-200 bg-white/80 p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
-                >
-                    <div class="flex items-center justify-between">
-                        <p
-                            class="text-sm font-semibold text-zinc-900 dark:text-zinc-50"
-                        >
-                            Trending tags
-                        </p>
-                        <a class="text-xs text-sky-500">View all</a>
-                    </div>
-                    <div class="mt-3 grid grid-cols-2 gap-2">
-                        <div
-                            v-for="tag in trendingTags"
-                            :key="tag.name"
-                            class="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800/70 dark:text-zinc-200"
-                        >
-                            <span>#{{ tag.name }}</span>
-                            <span class="text-xs text-emerald-500">{{
-                                tag.delta
-                            }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    class="rounded-2xl border border-dashed border-zinc-300 bg-gradient-to-br from-zinc-100 to-white p-4 text-sm text-zinc-700 dark:border-zinc-700 dark:from-zinc-900 dark:to-zinc-950 dark:text-zinc-200"
-                >
-                    <p
-                        class="text-sm font-semibold text-zinc-900 dark:text-zinc-50"
-                    >
-                        Hire the best talent
-                    </p>
-                    <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        Reach millions of developers where they already work.
-                    </p>
-                    <button
-                        class="mt-3 w-full rounded-lg bg-sky-500 px-3 py-2 text-sm font-semibold text-white shadow-md shadow-sky-500/20 transition hover:brightness-110"
-                    >
-                        Post a job
-                    </button>
-                </div>
-            </aside>
-        </main>
+    <div class="space-y-4">
+        <SingleQuestion :questions="questions" />
     </div>
 </template>
 

@@ -9,6 +9,10 @@ import AuthBase from '@/layouts/AuthLayout.vue';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
 import { Form, Head } from '@inertiajs/vue3';
+
+defineOptions({
+    layout: null,
+});
 </script>
 
 <template>

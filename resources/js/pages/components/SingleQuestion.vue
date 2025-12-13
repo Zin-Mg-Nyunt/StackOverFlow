@@ -32,12 +32,13 @@ let { questions } = defineProps({
                     {{ question.views }} views
                 </div>
             </div>
-            <Link :href="'/questions/' + question.id" class="flex-1 space-y-2">
-                <h2
+            <div class="flex-1 space-y-2">
+                <Link
+                    :href="'/questions/' + question.id"
                     class="text-xl leading-snug font-semibold text-zinc-900 transition group-hover:text-sky-600 dark:text-zinc-50"
                 >
                     {{ question.title }}
-                </h2>
+                </Link>
                 <p class="text-sm text-zinc-600 dark:text-zinc-400">
                     {{ question.body }}
                 </p>
@@ -69,7 +70,7 @@ let { questions } = defineProps({
                     />
                     <span>{{ formatTime(question.created_at) }}</span>
                 </div>
-            </Link>
+            </div>
         </div>
     </article>
 </template>

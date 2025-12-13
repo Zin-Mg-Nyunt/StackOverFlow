@@ -1,8 +1,9 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { onMounted, ref, watch } from 'vue';
 
 const isDark = ref(true);
+let search = ref('');
 
 const navigation = ref([
     { label: 'Home', active: true },
@@ -37,6 +38,21 @@ watch(
     },
     { immediate: true },
 );
+
+watch(search, (value) => {
+    router.get(
+        '/',
+        { search: value },
+        {
+            preserveState: true,
+            replace: true,
+        },
+    );
+});
+
+const logout = () => {
+    router.post('/logout');
+};
 
 onMounted(() => {
     document.documentElement.classList.toggle('dark', isDark.value);
@@ -93,21 +109,42 @@ onMounted(() => {
                         <input
                             class="w-full bg-transparent placeholder:text-zinc-400 focus:outline-none dark:placeholder:text-zinc-600"
                             placeholder="Search questions, tags, users..."
+                            v-model="search"
                         />
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <button
-                        class="rounded-full border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:border-sky-400 hover:bg-sky-50 dark:border-zinc-800 dark:text-zinc-200 dark:hover:border-sky-500/60 dark:hover:bg-sky-500/10"
-                    >
-                        Log in
-                    </button>
-                    <button
-                        class="rounded-full bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:brightness-105"
-                    >
-                        Sign up
-                    </button>
+                    <template v-if="!$page.props.auth.user">
+                        <Link
+                            href="/login"
+                            class="rounded-full border border-zinc-200 px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:border-sky-400 hover:bg-sky-50 dark:border-zinc-800 dark:text-zinc-200 dark:hover:border-sky-500/60 dark:hover:bg-sky-500/10"
+                        >
+                            Log in
+                        </Link>
+                        <Link
+                            href="/register"
+                            class="rounded-full bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:brightness-105"
+                        >
+                            Sign up
+                        </Link>
+                    </template>
+                    <template v-else>
+                        <!-- INSERT_YOUR_CODE -->
+                        <span
+                            class="flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-800 uppercase dark:bg-zinc-800 dark:text-zinc-100"
+                        >
+                            {{ $page.props.auth.user.name.charAt() }}
+                        </span>
+                        <form @submit.prevent="logout" class="inline">
+                            <button
+                                type="submit"
+                                class="ml-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 transition hover:border-red-400 hover:bg-red-50 hover:text-red-700 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:border-red-500/80 dark:hover:bg-red-800/40 dark:hover:text-red-300"
+                            >
+                                Log out
+                            </button>
+                        </form>
+                    </template>
                     <button
                         class="rounded-full border border-zinc-200 p-2 text-zinc-600 transition hover:border-sky-400 hover:text-sky-500 dark:border-zinc-800 dark:text-zinc-300 dark:hover:border-sky-500/60 dark:hover:text-sky-400"
                         @click="toggleTheme"

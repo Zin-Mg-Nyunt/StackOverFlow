@@ -12,6 +12,9 @@ import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
 
+defineOptions({
+    layout: null,
+});
 defineProps<{
     status?: string;
     canResetPassword: boolean;

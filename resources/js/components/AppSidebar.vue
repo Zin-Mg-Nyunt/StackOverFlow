@@ -11,7 +11,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { dashboard } from '@/routes';
+// import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { BookOpen, Folder } from 'lucide-vue-next';
 

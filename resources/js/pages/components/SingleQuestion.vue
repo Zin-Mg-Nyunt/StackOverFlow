@@ -1,11 +1,7 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-dayjs.extend(relativeTime);
-const formatTime = (time) => {
-    return dayjs(time).fromNow();
-};
+import formatTime from '../composable/formatDate';
+
 let { questions } = defineProps({
     questions: Array,
 });

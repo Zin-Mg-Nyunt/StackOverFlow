@@ -6,16 +6,18 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
 Route::get('/', function () {
+    $questions = Question::with('author')->latest()->get();
     return Inertia::render('Questions/Index', [
-        'questions' => Question::with('author')->latest()->get()
+        'questions' => $questions
     ]);
 })->name('home');
 
 Route::get('/questions/{id}',function($id){
     return inertia('Questions/Detail',[
-        'question' => Question::findOrFail($id)
+        'question' => Question::with('author')->findOrFail($id)
     ]);
 })->name('questions.detail');
+
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

@@ -1,15 +1,16 @@
 <script setup>
+import { Link } from '@inertiajs/vue3';
 import { onMounted, ref, watch } from 'vue';
 
 const isDark = ref(true);
 
-const navigation = [
+const navigation = ref([
     { label: 'Home', active: true },
-    { label: 'Tags' },
-    { label: 'Users' },
-    { label: 'Companies' },
-    { label: 'Collectives' },
-];
+    { label: 'Tags', active: false },
+    { label: 'Users', active: false },
+    { label: 'Companies', active: false },
+    { label: 'Collectives', active: false },
+]);
 
 const highlights = [
     { title: 'Roadmap: Async server actions for Laravel', link: '#' },
@@ -163,9 +164,11 @@ onMounted(() => {
                         Explore
                     </p>
                     <nav class="space-y-1">
-                        <button
+                        <Link
+                            href="/"
                             v-for="item in navigation"
                             :key="item.label"
+                            s
                             :class="[
                                 'flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition',
                                 item.active
@@ -178,7 +181,7 @@ onMounted(() => {
                                 v-if="item.active"
                                 class="h-2 w-2 rounded-full bg-sky-500"
                             />
-                        </button>
+                        </Link>
                     </nav>
                     <div
                         class="mt-4 rounded-xl bg-gradient-to-br from-zinc-100 to-white p-3 text-sm text-zinc-700 ring-1 ring-zinc-200 dark:from-zinc-900 dark:to-zinc-950 dark:text-zinc-200 dark:ring-zinc-800"

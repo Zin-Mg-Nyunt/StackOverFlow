@@ -7,15 +7,9 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
 Route::get('/', [QuestionController::class, 'index'])->name('home');
+Route::get('/questions/ask',[QuestionController::class, 'create'])->name('questions.create')->middleware('loginUser');
+Route::post('/questions/store',[QuestionController::class, 'store'])->name('questions.store');
+Route::get('/questions/{question}',[QuestionController::class, 'show'])->name('questions.detail');
 
-Route::get('/questions/{id}',function($id){
-    return inertia('Questions/Detail',[
-        'question' => Question::findOrFail($id)
-    ]);
-})->name('questions.detail');
-
-// Route::get('dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
 
 require __DIR__.'/settings.php';

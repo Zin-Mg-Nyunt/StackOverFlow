@@ -1,4 +1,5 @@
 <script setup>
+import { Link } from '@inertiajs/vue3';
 import SingleQuestion from '../components/SingleQuestion.vue';
 
 const filters = ['Interesting', 'Bountied', 'Hot', 'Week', 'Month'];
@@ -26,11 +27,12 @@ let { questions } = defineProps({
                 with the community that ships the web.
             </p>
             <div class="mt-4 flex flex-wrap items-center gap-3">
-                <button
+                <Link
+                    href="/questions/ask"
                     class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-sky-600 shadow-md shadow-sky-500/20 transition hover:brightness-105"
                 >
                     Ask question
-                </button>
+                </Link>
                 <button
                     class="rounded-full border border-white/60 px-4 py-2 text-sm font-semibold text-white/90 transition hover:bg-white/10"
                 >

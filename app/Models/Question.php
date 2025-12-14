@@ -10,14 +10,23 @@ class Question extends Model
     /** @use HasFactory<\Database\Factories\QuestionFactory> */
     use HasFactory;
     protected $guarded = ['id'];
-    protected $with = ['author'];
+    protected $with = ['author','tags'];
 
     public function author(){
         return $this->belongsTo(User::class,'user_id');
     }
+    public function tags(){
+        return $this->belongsToMany(Tag::class);
+    }
+
     public function scopeFilter($query,$filter){
         $query->when($filter['search']??false,function($query,$search){
             $query->where('title','LIKE','%'.$search.'%');
+        });
+        $query->when($filter['tag']??false,function($query,$slug){
+            $query->wherehas('tags',function($query) use($slug){
+                $query->where('slug',$slug);
+            });
         });
     }
 }

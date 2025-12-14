@@ -1,9 +1,11 @@
 <script setup>
-import { Link, router } from '@inertiajs/vue3';
-import { onMounted, ref, watch } from 'vue';
+import { Link, router, usePage } from '@inertiajs/vue3';
+import { computed, onMounted, ref, watch } from 'vue';
 
 const isDark = ref(true);
 let search = ref('');
+let allTags = ref(false);
+let page = usePage();
 
 const navigation = ref([
     { label: 'Home', active: true },
@@ -12,14 +14,6 @@ const navigation = ref([
     { label: 'Companies', active: false },
     { label: 'Collectives', active: false },
 ]);
-
-const trendingTags = [
-    { name: 'inertiajs', delta: '+48%' },
-    { name: 'tailwindcss', delta: '+32%' },
-    { name: 'vue', delta: '+27%' },
-    { name: 'laravel', delta: '+19%' },
-    { name: 'mysql', delta: '+12%' },
-];
 
 const toggleTheme = () => {
     isDark.value = !isDark.value;
@@ -50,6 +44,10 @@ const logout = () => {
 
 onMounted(() => {
     document.documentElement.classList.toggle('dark', isDark.value);
+});
+
+const popularTags = computed(() => {
+    return page.props.popularTags.filter((t) => t.questions_count > 10);
 });
 </script>
 <template>
@@ -248,7 +246,7 @@ onMounted(() => {
                         <p
                             class="text-sm font-semibold text-zinc-900 dark:text-zinc-50"
                         >
-                            The Overflow blog
+                            The Recent blogs
                         </p>
                         <span class="text-xs text-sky-500">New</span>
                     </div>
@@ -286,19 +284,26 @@ onMounted(() => {
                         <p
                             class="text-sm font-semibold text-zinc-900 dark:text-zinc-50"
                         >
-                            Trending tags
+                            {{ allTags ? 'All tags' : 'Popular tags' }}
                         </p>
-                        <a class="text-xs text-sky-500">View all</a>
+                        <span
+                            class="cursor-pointer text-xs text-sky-500"
+                            @click="allTags = !allTags"
+                        >
+                            {{ allTags ? 'Hide' : 'View all' }}
+                        </span>
                     </div>
                     <div class="mt-3 grid grid-cols-2 gap-2">
                         <div
-                            v-for="tag in trendingTags"
-                            :key="tag.name"
+                            v-for="tag in allTags
+                                ? $page.props.popularTags
+                                : popularTags"
+                            :key="tag.slug"
                             class="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800/70 dark:text-zinc-200"
                         >
                             <span>#{{ tag.name }}</span>
                             <span class="text-xs text-emerald-500">{{
-                                tag.delta
+                                tag.questions_count
                             }}</span>
                         </div>
                     </div>

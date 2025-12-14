@@ -10,7 +10,7 @@ class QuestionController extends Controller
 {
     public function index(){
             return inertia('Questions/Index', [
-                'questions' => Question::filter(request(['search']))->latest()->get()
+                'questions' => Question::filter(request(['search','tag']))->latest()->get()
             ]);
     }
     public function show(Question $question){

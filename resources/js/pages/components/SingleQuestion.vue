@@ -1,10 +1,13 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import formatTime from '../composable/formatDate';
 
 let { questions } = defineProps({
     questions: Array,
 });
+const filterBy = (slug) => {
+    router.get('/', { tag: slug });
+};
 </script>
 <template>
     <article
@@ -47,8 +50,9 @@ let { questions } = defineProps({
                         v-for="tag in question.tags"
                         :key="tag"
                         class="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700 transition hover:bg-sky-50 hover:text-sky-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-sky-500/10 dark:hover:text-sky-200"
+                        @click="filterBy(tag.slug)"
                     >
-                        {{ tag }}
+                        {{ tag.name }}
                     </span>
                 </div>
                 <div

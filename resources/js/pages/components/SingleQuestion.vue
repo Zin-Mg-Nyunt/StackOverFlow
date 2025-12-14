@@ -34,7 +34,7 @@ let { questions } = defineProps({
             </div>
             <div class="flex-1 space-y-2">
                 <Link
-                    :href="'/questions/' + question.id"
+                    :href="route('questions.detail', question.id)"
                     class="text-xl leading-snug font-semibold text-zinc-900 transition group-hover:text-sky-600 dark:text-zinc-50"
                 >
                     {{ question.title }}

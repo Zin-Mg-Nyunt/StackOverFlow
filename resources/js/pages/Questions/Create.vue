@@ -202,7 +202,7 @@ const submit = () => {
                 class="rounded-2xl border border-zinc-200 bg-white/90 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
             > -->
             <!-- <div class="space-y-4">
-                    <!-- <div>
+                    <div>
                         <label
                             for="tags"
                             class="mb-2 block text-sm font-semibold text-zinc-900 dark:text-zinc-50"

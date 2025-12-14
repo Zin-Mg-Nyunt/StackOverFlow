@@ -13,12 +13,6 @@ const navigation = ref([
     { label: 'Collectives', active: false },
 ]);
 
-const highlights = [
-    { title: 'Roadmap: Async server actions for Laravel', link: '#' },
-    { title: 'Design deep-dive: semantic spacing with Tailwind v4', link: '#' },
-    { title: 'Case study: migrating to Inertia v2 polling', link: '#' },
-];
-
 const trendingTags = [
     { name: 'inertiajs', delta: '+48%' },
     { name: 'tailwindcss', delta: '+32%' },
@@ -202,7 +196,7 @@ onMounted(() => {
                     </p>
                     <nav class="space-y-1">
                         <Link
-                            href="/"
+                            :href="route('home')"
                             v-for="item in navigation"
                             :key="item.label"
                             s
@@ -260,8 +254,8 @@ onMounted(() => {
                     </div>
                     <ul class="mt-3 space-y-2 text-sm">
                         <li
-                            v-for="item in highlights"
-                            :key="item.title"
+                            v-for="question in $page.props.latestQuestions"
+                            :key="question.title"
                             class="group flex items-start gap-2 rounded-lg p-2 transition hover:bg-zinc-100 dark:hover:bg-zinc-800"
                         >
                             <span
@@ -271,13 +265,15 @@ onMounted(() => {
                                 <p
                                     class="font-semibold text-zinc-800 group-hover:text-sky-600 dark:text-zinc-100 dark:group-hover:text-sky-300"
                                 >
-                                    {{ item.title }}
+                                    {{ question.title }}
                                 </p>
-                                <a
-                                    :href="item.link"
+                                <Link
+                                    :href="
+                                        route('questions.detail', question.id)
+                                    "
                                     class="text-xs text-sky-500"
-                                    >Read more</a
-                                >
+                                    >Read more
+                                </Link>
                             </div>
                         </li>
                     </ul>

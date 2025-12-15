@@ -1,6 +1,6 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import formatTime from '../composable/formatDate';
+import formatTime from '../../composables/formatDate';
 
 let { question } = defineProps({
     question: Object,

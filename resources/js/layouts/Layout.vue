@@ -1,11 +1,12 @@
 <script setup>
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
+import useFilter from '../composables/useFilter.js';
 
 const isDark = ref(true);
-let search = ref('');
 let allTags = ref(false);
 let page = usePage();
+let { filters } = useFilter();
 
 const navigation = ref([
     { label: 'Home', active: true },
@@ -26,17 +27,6 @@ watch(
     },
     { immediate: true },
 );
-
-watch(search, (value) => {
-    router.get(
-        '/',
-        { search: value },
-        {
-            preserveState: true,
-            replace: true,
-        },
-    );
-});
 
 const logout = () => {
     router.post('/logout');
@@ -101,7 +91,7 @@ const popularTags = computed(() => {
                         <input
                             class="w-full bg-transparent placeholder:text-zinc-400 focus:outline-none dark:placeholder:text-zinc-600"
                             placeholder="Search questions, tags, users..."
-                            v-model="search"
+                            v-model="filters.search"
                         />
                     </div>
                 </div>

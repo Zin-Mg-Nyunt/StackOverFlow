@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Question;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class QuestionController extends Controller
 {
     public function index(){
             return inertia('Questions/Index', [
-                'questions' => Question::filter(request(['search','tag']))->latest()->get()
+                'questions' => Question::filter(request(['search','tag']))->latest()->get(),
+                'filters' => request(['search','tag'])
             ]);
     }
     public function show(Question $question){

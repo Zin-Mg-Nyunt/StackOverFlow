@@ -3,7 +3,7 @@ import useFilter from '@/composables/useFilter';
 import { Link } from '@inertiajs/vue3';
 import formatTime from '../../composables/formatDate';
 
-let { filters } = useFilter();
+let { search, slug } = useFilter();
 let { questions } = defineProps({
     questions: Array,
 });
@@ -49,7 +49,7 @@ let { questions } = defineProps({
                         v-for="tag in question.tags"
                         :key="tag"
                         class="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700 transition hover:bg-sky-50 hover:text-sky-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-sky-500/10 dark:hover:text-sky-200"
-                        @click="filters.tag = tag.slug"
+                        @click="slug = tag.slug"
                     >
                         {{ tag.name }}
                     </span>

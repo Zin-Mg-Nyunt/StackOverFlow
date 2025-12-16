@@ -6,7 +6,7 @@ import useFilter from '../composables/useFilter.js';
 const isDark = ref(true);
 let allTags = ref(false);
 let page = usePage();
-let { filters } = useFilter();
+let { search, slug } = useFilter();
 
 const navigation = ref([
     { label: 'Home', active: true },
@@ -91,7 +91,7 @@ const popularTags = computed(() => {
                         <input
                             class="w-full bg-transparent placeholder:text-zinc-400 focus:outline-none dark:placeholder:text-zinc-600"
                             placeholder="Search questions, tags, users..."
-                            v-model="filters.search"
+                            v-model="search"
                         />
                     </div>
                 </div>

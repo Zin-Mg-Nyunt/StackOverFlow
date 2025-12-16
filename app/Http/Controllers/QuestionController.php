@@ -9,8 +9,12 @@ class QuestionController extends Controller
 {
     public function index(){
             return inertia('Questions/Index', [
+                
                 'questions' => Question::filter(request(['search','tag']))->latest()->get(),
-                'filters' => request(['search','tag'])
+                'filters' => [
+                    'search' => request('search'),
+                    'tag' => request('tag')
+                ]
             ]);
     }
     public function show(Question $question){

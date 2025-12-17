@@ -4,8 +4,8 @@ import { ref, watch } from 'vue';
 const useFilter = () => {
     let page = usePage();
 
-    const search = ref(page.props.filters.search ?? '');
-    const slug = ref(page.props.filters.tag ?? null);
+    const search = ref(page.props.filters?.search ?? '');
+    const slug = ref(page.props.filters?.tag ?? null);
 
     watch(search, (value) => {
         router.get('/', {

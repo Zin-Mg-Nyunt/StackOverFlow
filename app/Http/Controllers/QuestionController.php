@@ -17,8 +17,7 @@ class QuestionController extends Controller
     }
     public function show(Question $question){
         return inertia('Questions/Detail',[
-            'filters' => request(['search','tag']),
-            'question' => $question,
+            'question' => $question->load('answers.author'),
             'relatedQuestions' => $this->getRandomQuestions(),
         ]);
     }

@@ -18,6 +18,10 @@ class Question extends Model
     public function tags(){
         return $this->belongsToMany(Tag::class);
     }
+    public function answers()
+    {
+        return $this->hasMany(Answer::class,'question_id');
+    }
 
     public function scopeFilter($query,$filter){
         $query->when($filter['search']??false,function($query,$search){

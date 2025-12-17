@@ -1,31 +1,26 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import InputError from '@/components/InputError.vue';
+import { Link, useForm } from '@inertiajs/vue3';
+import { inject } from 'vue';
 import formatTime from '../../composables/formatDate';
 
+const route = inject('route');
 let { question, relatedQuestions } = defineProps({
     question: Object,
     relatedQuestions: Array,
 });
-console.log(relatedQuestions);
-// Mock data for answers (replace with real data when backend is ready)
-const answers = [
-    {
-        id: 1,
-        body: 'This is a great solution! You can use the `useForm` helper from Inertia to handle form submissions. Make sure to include proper validation on the backend.',
-        author: { name: 'John Doe' },
-        votes: 12,
-        created_at: '2024-01-15T10:30:00Z',
-        isAccepted: true,
-    },
-    {
-        id: 2,
-        body: 'Another approach would be to use the Form component directly. It provides better integration with Inertia and handles errors automatically.',
-        author: { name: 'Jane Smith' },
-        votes: 8,
-        created_at: '2024-01-15T11:45:00Z',
-        isAccepted: false,
-    },
-];
+
+const answerForm = useForm({
+    body: '',
+});
+const submitAnswer = () => {
+    answerForm.post(route('answer.store', question.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            answerForm.reset();
+        },
+    });
+};
 
 // Mock tags for the question
 const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
@@ -259,7 +254,7 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
         <div class="space-y-4">
             <div class="flex items-center justify-between">
                 <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                    {{ answers.length }} Answers
+                    {{ question.answers?.length }} Answers
                 </h2>
                 <div class="flex items-center gap-2">
                     <span class="text-sm text-zinc-600 dark:text-zinc-400">
@@ -278,13 +273,9 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
 
             <!-- Answers List -->
             <div
-                v-for="answer in answers"
+                v-for="answer in question.answers"
                 :key="answer.id"
                 class="rounded-2xl border border-zinc-200 bg-white/90 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
-                :class="{
-                    'ring-2 ring-emerald-500/30 dark:ring-emerald-500/50':
-                        answer.isAccepted,
-                }"
             >
                 <div class="flex gap-6 p-6">
                     <!-- Voting Section -->
@@ -310,7 +301,7 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
                         <span
                             class="text-xl font-bold text-zinc-900 dark:text-zinc-50"
                         >
-                            {{ answer.votes }}
+                            {{ answer.votes ?? 0 }}
                         </span>
                         <button
                             class="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-600 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"
@@ -403,7 +394,7 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
                                         class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-xs font-bold text-white"
                                     >
                                         {{
-                                            answer.author.name
+                                            answer.author?.name
                                                 .slice(0, 2)
                                                 .toUpperCase()
                                         }}
@@ -412,7 +403,10 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
                                         <p
                                             class="text-sm font-semibold text-zinc-900 dark:text-zinc-50"
                                         >
-                                            {{ answer.author.name }}
+                                            {{
+                                                answer.author?.name ||
+                                                'Anynomus'
+                                            }}
                                         </p>
                                         <p
                                             class="text-xs text-zinc-500 dark:text-zinc-400"
@@ -430,12 +424,13 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
 
         <!-- Your Answer Section -->
         <div
+            v-if="$page.props.auth.user"
             class="rounded-2xl border border-zinc-200 bg-white/90 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
         >
             <h3 class="mb-4 text-xl font-bold text-zinc-900 dark:text-zinc-50">
                 Your Answer
             </h3>
-            <div class="space-y-4">
+            <form @submit.prevent="submitAnswer" class="space-y-4">
                 <div>
                     <label
                         class="mb-2 block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
@@ -443,28 +438,26 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
                         Answer
                     </label>
                     <textarea
+                        v-model="answerForm.body"
                         rows="10"
                         class="w-full rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-200 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50 dark:placeholder:text-zinc-600 dark:focus:border-sky-500 dark:focus:ring-sky-500/30"
                         placeholder="Enter your answer here. Use markdown formatting for code blocks, lists, and more."
                     ></textarea>
+                    <InputError :message="answerForm.errors.body" />
                     <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
                         Use markdown to format your answer. Code blocks are
                         supported.
                     </p>
                 </div>
-                <div class="flex items-center gap-4">
+                <div class="flex items-center justify-end gap-4">
                     <button
-                        class="rounded-lg bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:brightness-105"
+                        type="submit"
+                        class="cursor-pointer rounded-lg bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:brightness-105"
                     >
                         Post Your Answer
                     </button>
-                    <button
-                        class="rounded-lg border border-zinc-200 px-6 py-3 text-sm font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                    >
-                        Preview
-                    </button>
                 </div>
-            </div>
+            </form>
         </div>
 
         <!-- Related Questions -->

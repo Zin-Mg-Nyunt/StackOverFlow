@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 
 class AnswerController extends Controller
 {
-    public function store(Question $question){
+    public function store(Question $question, Request $request){
         $newAnswer=request()->validate([
-            "body" => "required|min:5",
+            "body" => "required",
         ]);
-        $newAnswer["user_id"] = auth()->id();
+        $newAnswer["user_id"] = $request->user()->id;
         $question->answers()->create($newAnswer);
     }
 }

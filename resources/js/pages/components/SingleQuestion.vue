@@ -26,7 +26,7 @@ let { questions } = defineProps({
                 <div
                     class="rounded-lg bg-emerald-500/10 px-3 py-2 text-center text-emerald-600 ring-1 ring-emerald-500/30 dark:text-emerald-200"
                 >
-                    {{ question.answers }} answers
+                    {{ question.answers_count }} answers
                 </div>
                 <div
                     class="rounded-lg bg-zinc-100 px-3 py-2 text-center text-zinc-700 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700"
@@ -41,7 +41,9 @@ let { questions } = defineProps({
                 >
                     {{ question.title }}
                 </Link>
-                <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                <p
+                    class="line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400"
+                >
                     {{ question.body }}
                 </p>
                 <div class="flex flex-wrap items-center gap-2">

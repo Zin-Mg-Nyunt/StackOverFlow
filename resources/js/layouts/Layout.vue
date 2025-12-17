@@ -51,11 +51,12 @@ const popularTags = computed(() => {
                 class="mx-auto flex max-w-screen-2xl items-center gap-4 px-6 py-4"
             >
                 <div class="flex items-center gap-3">
-                    <div
+                    <Link
+                        href="/"
                         class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 via-indigo-500 to-blue-600 text-lg font-semibold text-white shadow-lg shadow-sky-500/20"
                     >
                         SO
-                    </div>
+                    </Link>
                     <div>
                         <p
                             class="text-sm font-medium text-zinc-500 dark:text-zinc-400"
@@ -113,11 +114,14 @@ const popularTags = computed(() => {
                     </template>
                     <template v-else>
                         <!-- INSERT_YOUR_CODE -->
-                        <span
-                            class="flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-800 uppercase dark:bg-zinc-800 dark:text-zinc-100"
+                        <Link
+                            :href="
+                                route('user.profile', $page.props.auth.user.id)
+                            "
+                            class="flex cursor-pointer items-center gap-2 rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-800 uppercase dark:bg-zinc-800 dark:text-zinc-100"
                         >
                             {{ $page.props.auth.user.name.charAt() }}
-                        </span>
+                        </Link>
                         <form @submit.prevent="logout" class="inline">
                             <button
                                 type="submit"
@@ -291,7 +295,11 @@ const popularTags = computed(() => {
                             :key="tag.slug"
                             class="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800/70 dark:text-zinc-200"
                         >
-                            <span>#{{ tag.name }}</span>
+                            <span
+                                @click="slug = tag.slug"
+                                class="cursor-pointer"
+                                >#{{ tag.name }}</span
+                            >
                             <span class="text-xs text-emerald-500">{{
                                 tag.questions_count
                             }}</span>

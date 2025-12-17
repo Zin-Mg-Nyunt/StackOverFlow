@@ -12,7 +12,7 @@ class QuestionController extends Controller
         cache()->forget('randomQuestions');
         return inertia('Questions/Index', [
             'filters' => request(['search','tag']),
-            'questions' => Question::filter(request(['search','tag']))->latest()->get(),
+            'questions' => Question::withCount("answers")->filter(request(['search','tag']))->latest()->get(),
         ]);
     }
     public function show(Question $question){

@@ -18,7 +18,9 @@ const submit = () => {
         },
     });
 };
-
+const goBack = () => {
+    window.history.back();
+};
 // Add tag functionality
 // const addTag = (tag) => {
 //     if (!form.tags.includes(tag.trim()) && tag.trim()) {
@@ -58,12 +60,12 @@ const submit = () => {
                     Share your knowledge and get help from the community
                 </p>
             </div>
-            <Link
-                href="/"
+            <button
+                @click="goBack"
                 class="rounded-lg border border-zinc-200 px-4 py-2 text-sm font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
             >
                 Cancel
-            </Link>
+            </button>
         </div>
 
         <!-- Form -->

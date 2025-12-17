@@ -69,11 +69,12 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
                     </span>
                 </div>
             </div>
-            <button
+            <Link
+                :href="route('questions.create')"
                 class="rounded-lg bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:brightness-105"
             >
                 Ask Question
-            </button>
+            </Link>
         </div>
 
         <!-- Question Content -->

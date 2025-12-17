@@ -5,22 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Question;
 use Illuminate\Support\Facades\Auth;
 
+
 class QuestionController extends Controller
 {
     public function index(){
-            return inertia('Questions/Index', [
-                
-                'questions' => Question::filter(request(['search','tag']))->latest()->get(),
-                'filters' => [
-                    'search' => request('search'),
-                    'tag' => request('tag')
-                ]
-            ]);
+        cache()->forget('randomQuestions');
+        return inertia('Questions/Index', [
+            'filters' => request(['search','tag']),
+            'questions' => Question::filter(request(['search','tag']))->latest()->get(),
+        ]);
     }
     public function show(Question $question){
         return inertia('Questions/Detail',[
-            'question' => $question
+            'filters' => request(['search','tag']),
+            'question' => $question,
+            'relatedQuestions' => $this->getRandomQuestions(),
         ]);
+    }
+    public function getRandomQuestions(){
+        return cache()->remember("randomQuestions",now()->addMinutes(2),function(){
+            return Question::inRandomOrder()->take(3)->get();
+        });
     }
     public function create(){
         return inertia('Questions/Create');

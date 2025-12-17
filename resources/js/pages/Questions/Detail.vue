@@ -2,10 +2,11 @@
 import { Link } from '@inertiajs/vue3';
 import formatTime from '../../composables/formatDate';
 
-let { question } = defineProps({
+let { question, relatedQuestions } = defineProps({
     question: Object,
+    relatedQuestions: Array,
 });
-
+console.log(relatedQuestions);
 // Mock data for answers (replace with real data when backend is ready)
 const answers = [
     {
@@ -23,28 +24,6 @@ const answers = [
         votes: 8,
         created_at: '2024-01-15T11:45:00Z',
         isAccepted: false,
-    },
-];
-
-// Mock related questions
-const relatedQuestions = [
-    {
-        id: 101,
-        title: 'How to handle form validation in Inertia.js?',
-        votes: 45,
-        answers: 3,
-    },
-    {
-        id: 102,
-        title: 'Best practices for Vue 3 with Inertia',
-        votes: 32,
-        answers: 5,
-    },
-    {
-        id: 103,
-        title: 'Laravel Fortify authentication setup',
-        votes: 28,
-        answers: 2,
     },
 ];
 

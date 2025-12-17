@@ -37,7 +37,7 @@ onMounted(() => {
 });
 
 const popularTags = computed(() => {
-    return page.props.popularTags.filter((t) => t.questions_count > 10);
+    return page.props.tags.filter((t) => t.questions_count > 10);
 });
 </script>
 <template>
@@ -286,7 +286,7 @@ const popularTags = computed(() => {
                     <div class="mt-3 grid grid-cols-2 gap-2">
                         <div
                             v-for="tag in allTags
-                                ? $page.props.popularTags
+                                ? $page.props.tags
                                 : popularTags"
                             :key="tag.slug"
                             class="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-semibold text-zinc-700 dark:border-zinc-800 dark:bg-zinc-800/70 dark:text-zinc-200"

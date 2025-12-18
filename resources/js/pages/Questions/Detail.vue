@@ -272,7 +272,7 @@ const sortAnswers = (value) => {
                         Sorted by:
                     </span>
                     <select
-                        v-model="$page.props.sort"
+                        :value="$page.props.sort ?? 'highest_score'"
                         @change="sortAnswers($event.target.value)"
                         class="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700 focus:border-sky-400 focus:ring-2 focus:ring-sky-200 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:focus:border-sky-500 dark:focus:ring-sky-500/30"
                     >

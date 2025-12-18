@@ -2,10 +2,11 @@
 import { Link } from '@inertiajs/vue3';
 import SingleQuestion from '../components/SingleQuestion.vue';
 
-const filters = ['Interesting', 'Bountied', 'Hot', 'Week', 'Month'];
+const tags = ['Interesting', 'Bountied', 'Hot', 'Week', 'Month'];
 
-let { questions } = defineProps({
+let { questions, filters } = defineProps({
     questions: Array,
+    filters: Object,
 });
 </script>
 
@@ -44,7 +45,7 @@ let { questions } = defineProps({
             class="flex flex-wrap items-center gap-2 border-t border-zinc-200 px-4 py-3 dark:border-zinc-800"
         >
             <button
-                v-for="filter in filters"
+                v-for="filter in tags"
                 :key="filter"
                 class="rounded-full border border-zinc-200 px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-sky-300 hover:text-sky-600 dark:border-zinc-800 dark:text-zinc-200 dark:hover:border-sky-500/60 dark:hover:text-sky-300"
             >
@@ -57,7 +58,7 @@ let { questions } = defineProps({
     </div>
 
     <div class="space-y-4">
-        <SingleQuestion :questions="questions" />
+        <SingleQuestion :questions="questions" :filters="filters" />
     </div>
 </template>
 

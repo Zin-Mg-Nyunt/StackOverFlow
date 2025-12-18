@@ -4,8 +4,9 @@ import { Link } from '@inertiajs/vue3';
 import formatTime from '../../composables/formatDate';
 
 let { search, slug } = useFilter();
-let { questions } = defineProps({
+let { questions, filters } = defineProps({
     questions: Array,
+    filters: Object,
 });
 </script>
 <template>
@@ -50,7 +51,12 @@ let { questions } = defineProps({
                     <span
                         v-for="tag in question.tags"
                         :key="tag"
-                        class="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700 transition hover:bg-sky-50 hover:text-sky-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-sky-500/10 dark:hover:text-sky-200"
+                        class="rounded-full px-3 py-1 text-xs font-semibold transition hover:bg-sky-50 hover:text-sky-600 dark:hover:bg-sky-500/10 dark:hover:text-sky-200"
+                        :class="
+                            filters.tag == tag.slug
+                                ? 'bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-200'
+                                : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200'
+                        "
                         @click="slug = tag.slug"
                     >
                         {{ tag.name }}

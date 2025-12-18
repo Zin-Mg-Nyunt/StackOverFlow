@@ -1,5 +1,4 @@
 <script setup>
-import user from '@/routes/user';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { inject, ref } from 'vue';
 import formatTime from '../../composables/formatDate';
@@ -61,12 +60,12 @@ const formatNumber = (num) => {
                             <h1
                                 class="text-center text-3xl font-bold text-zinc-900 md:text-left dark:text-zinc-50"
                             >
-                                {{ user.name }}
+                                {{ profileUser.name }}
                             </h1>
                             <p
                                 class="mt-1 text-center text-sm text-zinc-600 md:text-left dark:text-zinc-400"
                             >
-                                {{ user.email }}
+                                {{ profileUser.email }}
                             </p>
                         </div>
 
@@ -150,7 +149,7 @@ const formatNumber = (num) => {
                             </svg>
                             <span
                                 >Member since
-                                {{ formatTime(user.created_at) }}</span
+                                {{ formatTime(profileUser.created_at) }}</span
                             >
                         </div>
                     </div>

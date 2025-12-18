@@ -11,7 +11,6 @@ let { question, answers, relatedQuestions } = defineProps({
     answers: Object,
     relatedQuestions: Array,
 });
-
 const answerForm = useForm({
     body: '',
 });
@@ -472,7 +471,7 @@ const sortAnswers = (value) => {
             <h3 class="mb-4 text-xl font-bold text-zinc-900 dark:text-zinc-50">
                 Related Questions
             </h3>
-            <div class="space-y-3">
+            <div class="space-y-3" v-if="relatedQuestions.length > 0">
                 <Link
                     v-for="related in relatedQuestions"
                     :key="related.id"

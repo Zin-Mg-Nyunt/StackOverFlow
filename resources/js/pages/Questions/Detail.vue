@@ -1,12 +1,14 @@
 <script setup>
 import InputError from '@/components/InputError.vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { Link, router, useForm } from '@inertiajs/vue3';
 import { inject } from 'vue';
 import formatTime from '../../composables/formatDate';
+import Pagination from '../components/Pagination.vue';
 
 const route = inject('route');
-let { question, relatedQuestions } = defineProps({
+let { question, answers, relatedQuestions } = defineProps({
     question: Object,
+    answers: Object,
     relatedQuestions: Array,
 });
 
@@ -21,9 +23,17 @@ const submitAnswer = () => {
         },
     });
 };
-
-// Mock tags for the question
-const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
+const sortAnswers = (value) => {
+    router.get(
+        route('questions.detail', question.id),
+        {
+            sort: value,
+        },
+        {
+            preserveScroll: true,
+        },
+    );
+};
 </script>
 
 <template>
@@ -178,11 +188,11 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
                     <!-- Tags -->
                     <div class="flex flex-wrap items-center gap-2">
                         <span
-                            v-for="tag in questionTags"
-                            :key="tag"
+                            v-for="tag in question.tags"
+                            :key="tag.id"
                             class="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 hover:text-sky-800 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
                         >
-                            {{ tag }}
+                            {{ tag.name }}
                         </span>
                     </div>
 
@@ -254,28 +264,39 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
         <!-- Answers Section -->
         <div class="space-y-4">
             <div class="flex items-center justify-between">
-                <h2 class="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-                    {{ question.answers?.length }} Answers
+                <h2 class="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+                    {{ answers.data?.length }} of {{ answers.total }} Answers
                 </h2>
                 <div class="flex items-center gap-2">
                     <span class="text-sm text-zinc-600 dark:text-zinc-400">
                         Sorted by:
                     </span>
                     <select
+                        v-model="$page.props.sort"
+                        @change="sortAnswers($event.target.value)"
                         class="rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-700 focus:border-sky-400 focus:ring-2 focus:ring-sky-200 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:focus:border-sky-500 dark:focus:ring-sky-500/30"
                     >
-                        <option>Highest score (default)</option>
-                        <option>Trending (recent votes count more)</option>
-                        <option>Date modified (newest first)</option>
-                        <option>Date created (oldest first)</option>
+                        <option value="highest_score">
+                            Highest score (default)
+                        </option>
+                        <option value="trending">
+                            Trending (recent votes count more)
+                        </option>
+                        <option value="latest">
+                            Date modified (newest first)
+                        </option>
+                        <option value="oldest">
+                            Date created (oldest first)
+                        </option>
                     </select>
                 </div>
             </div>
 
             <!-- Answers List -->
             <div
-                v-for="answer in question.answers"
+                v-for="answer in answers.data"
                 :key="answer.id"
+                :id="'answer-' + answer.id"
                 class="rounded-2xl border border-zinc-200 bg-white/90 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
             >
                 <div class="flex gap-6 p-6">
@@ -322,26 +343,6 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
                                 />
                             </svg>
                         </button>
-                        <div
-                            v-if="answer.isAccepted"
-                            class="mt-2 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500 text-white"
-                            title="Accepted answer"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M5 13l4 4L19 7"
-                                />
-                            </svg>
-                        </div>
                     </div>
 
                     <!-- Answer Body -->
@@ -406,7 +407,7 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
                                         >
                                             {{
                                                 answer.author?.name ||
-                                                'Anynomus'
+                                                'Anonymous'
                                             }}
                                         </p>
                                         <p
@@ -420,6 +421,9 @@ const questionTags = ['inertiajs', 'vue3', 'laravel', 'forms', 'validation'];
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <Pagination :links="answers.links" />
             </div>
         </div>
 

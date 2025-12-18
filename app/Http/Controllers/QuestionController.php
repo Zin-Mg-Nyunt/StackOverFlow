@@ -16,8 +16,16 @@ class QuestionController extends Controller
         ]);
     }
     public function show(Question $question){
+        $sort = request('sort');
+        $answers = $question->answers()
+                    ->when($sort === 'latest', function($query){$query->latest();})
+                    ->paginate(3)
+                    ->withQueryString();
+                    
         return inertia('Questions/Detail',[
-            'question' => $question->load('answers.author'),
+            'question' => $question,
+            'answers' => $answers,
+            'sort' => $sort,
             'relatedQuestions' => $this->getRandomQuestions(),
         ]);
     }

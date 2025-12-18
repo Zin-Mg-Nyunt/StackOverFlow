@@ -29,7 +29,7 @@ const formatNumber = (num) => {
     <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950">
         <!-- Profile Header -->
         <div
-            class="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+            class="rounded-2xl border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
         >
             <div class="mx-auto max-w-screen-2xl px-6 py-8">
                 <div
@@ -273,7 +273,10 @@ const formatNumber = (num) => {
                     <div class="space-y-3">
                         <Link
                             :href="
-                                route('questions.detail', answer.question.id)
+                                route(
+                                    'questions.detail',
+                                    answer.question.id + '#answer-' + answer.id,
+                                )
                             "
                             class="block text-lg leading-snug font-semibold text-zinc-900 transition hover:text-sky-600 dark:text-zinc-50 dark:hover:text-sky-400"
                         >

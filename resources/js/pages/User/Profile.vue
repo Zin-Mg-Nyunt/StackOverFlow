@@ -1,16 +1,25 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import user from '@/routes/user';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { inject, ref } from 'vue';
 import formatTime from '../../composables/formatDate';
+import Pagination from '../components/Pagination.vue';
 
-const props = defineProps({
-    user: Object,
+let route = inject('route');
+let page = usePage();
+const { profileUser, stats, questions, answers } = defineProps({
+    profileUser: Object,
     stats: Object,
     questions: Array,
-    answers: Array,
+    answers: Object,
 });
-
-let questionOrAnswer = ref(true);
+let questionOrAnswer = ref(page.props.state ?? 'q');
+const stateValue = (value) => {
+    questionOrAnswer.value = value;
+    router.get(route('user.profile', profileUser.id), {
+        state: value,
+    });
+};
 
 const formatNumber = (num) => {
     if (num >= 1000000) {
@@ -42,7 +51,7 @@ const formatNumber = (num) => {
                         <div
                             class="flex h-32 w-32 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 via-indigo-500 to-blue-600 text-4xl font-bold text-white shadow-lg shadow-sky-500/20"
                         >
-                            {{ user.name.charAt(0).toUpperCase() }}
+                            {{ profileUser.name.charAt(0).toUpperCase() }}
                         </div>
                     </div>
 
@@ -157,9 +166,9 @@ const formatNumber = (num) => {
                         class="px-1 pb-4 text-sm font-semibold transition hover:text-zinc-900 dark:hover:text-zinc-50"
                         :class="{
                             'border-b-2 border-sky-500 text-sky-600 dark:text-sky-400':
-                                questionOrAnswer,
+                                questionOrAnswer == 'q',
                         }"
-                        @click="questionOrAnswer = true"
+                        @click="stateValue('q')"
                     >
                         Questions ({{ stats.questions }})
                     </button>
@@ -167,16 +176,16 @@ const formatNumber = (num) => {
                         class="px-1 pb-4 text-sm font-semibold transition hover:text-zinc-900 dark:hover:text-zinc-50"
                         :class="{
                             'border-b-2 border-sky-500 text-sky-600 dark:text-sky-400':
-                                !questionOrAnswer,
+                                questionOrAnswer == 'a',
                         }"
-                        @click="questionOrAnswer = false"
+                        @click="stateValue('a')"
                     >
                         Answers ({{ stats.answers }})
                     </button>
                 </nav>
             </div>
             <!-- Questions Section -->
-            <div class="space-y-4" v-if="questionOrAnswer">
+            <div class="space-y-4" v-if="questionOrAnswer == 'q'">
                 <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                     Recent Questions
                 </h2>
@@ -250,13 +259,18 @@ const formatNumber = (num) => {
             </div>
 
             <!-- Answers Section -->
-            <div class="space-y-4" v-if="!questionOrAnswer">
-                <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-                    Recent Answers
-                </h2>
+            <div class="space-y-4" v-if="questionOrAnswer == 'a'">
+                <div class="flex items-center justify-between">
+                    <h2
+                        class="text-xl font-bold text-zinc-900 dark:text-zinc-50"
+                    >
+                        Recent Answers
+                    </h2>
+                    <Pagination :links="answers.links" />
+                </div>
 
                 <div
-                    v-if="answers.length === 0"
+                    v-if="answers.data.length === 0"
                     class="rounded-xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900"
                 >
                     <p class="text-zinc-600 dark:text-zinc-400">
@@ -266,7 +280,7 @@ const formatNumber = (num) => {
                 </div>
 
                 <article
-                    v-for="answer in answers"
+                    v-for="answer in answers.data"
                     :key="answer.id"
                     class="group rounded-xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
                 >

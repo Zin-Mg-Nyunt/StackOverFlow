@@ -8,22 +8,22 @@ class UserController extends Controller
 {
     public function show(User $user)
     {
+        // dd(request('state'));
         $user->loadCount([
             'questions',
             'answers',
         ]);
-
         $questions = $user->questions()
             ->withCount(['answers'])
             ->latest()
-            ->take(10)
+            ->take(5)
             ->get();
 
         $answers = $user->answers()
             ->with(['question'])
             ->latest()
-            ->take(10)
-            ->get();
+            ->paginate(3)
+            ->withQueryString();
 
         // Calculate reputation (simplified: votes from questions)
         // $reputation = $user->questions()->sum('votes') ?? 0;
@@ -34,7 +34,7 @@ class UserController extends Controller
         $views = 0;
 
         return inertia('User/Profile', [
-            'user' => $user,
+            'profileUser' => $user,
             'stats' => [
                 'reputation' => $reputation,
                 'questions' => $user->questions_count,
@@ -43,6 +43,7 @@ class UserController extends Controller
             ],
             'questions' => $questions,
             'answers' => $answers,
+            'state' => request('state'),
         ]);
     }
 }

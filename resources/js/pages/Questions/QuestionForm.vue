@@ -1,22 +1,31 @@
 <script setup>
 import InputError from '@/components/InputError.vue';
 import { Link, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
+
+const route = inject('route');
+
+const { question } = defineProps({
+    question: Object | null,
+});
 
 const form = useForm({
-    title: '',
-    body: '',
+    title: question?.title || '',
+    body: question?.body || '',
 });
 
 const showPreview = ref(false);
 
 const submit = () => {
-    form.post('/questions/store', {
-        preserveScroll: true,
-        onSuccess: () => {
-            // Redirect will be handled by backend
-        },
-    });
+    if (question) {
+        form.put(route('question.update', question.id), {
+            preserveScroll: true,
+        });
+    } else {
+        form.post(route('questions.store'), {
+            preserveScroll: true,
+        });
+    }
 };
 const goBack = () => {
     window.history.back();
@@ -54,10 +63,16 @@ const goBack = () => {
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
-                    Ask a Question
+                    {{ question ? 'Edit Question' : 'Ask a Question' }}
                 </h1>
-                <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <p
+                    class="mt-2 text-sm text-zinc-600 dark:text-zinc-400"
+                    v-if="!question"
+                >
                     Share your knowledge and get help from the community
+                </p>
+                <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400" v-else>
+                    Edit your question
                 </p>
             </div>
             <button
@@ -314,8 +329,12 @@ const goBack = () => {
                         :disabled="form.processing"
                         class="rounded-lg bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        <span v-if="form.processing">Posting...</span>
-                        <span v-else>Post Your Question</span>
+                        <span v-if="form.processing">{{
+                            question ? 'Updating...' : 'Posting...'
+                        }}</span>
+                        <span v-else>{{
+                            question ? 'Update Question' : 'Post Your Question'
+                        }}</span>
                     </button>
                 </div>
             </div>

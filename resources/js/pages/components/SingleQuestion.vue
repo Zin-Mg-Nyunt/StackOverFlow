@@ -13,13 +13,11 @@ let { questions, filters } = defineProps({
 });
 
 const handleEdit = (questionId) => {
-    // TODO: Implement edit functionality
-    console.log('Edit question:', questionId);
+    router.get(route('question.edit', questionId));
 };
 
-const handleDelete = (questionId, onComplete) => {
+const handleDelete = (questionId) => {
     router.delete(route('question.delete', questionId));
-    onComplete();
 };
 </script>
 <template>

@@ -12,6 +12,7 @@ Route::get('/questions/{question}',[QuestionController::class, 'show'])->name('q
 Route::post('/questions/{question}/answer/store',[AnswerController::class, 'store'])->name('answer.store');
 Route::get('/users/{user}/profile',[UserController::class, 'show'])->name('user.profile');
 Route::delete('/questions/{question}/delete',[QuestionController::class, 'destroy'])->name('question.delete');
-
+Route::get('/questions/{question}/edit',[QuestionController::class, 'edit'])->name('question.edit');
+Route::put('/questions/{question}/update',[QuestionController::class, 'update'])->name('question.update');
 
 require __DIR__.'/settings.php';

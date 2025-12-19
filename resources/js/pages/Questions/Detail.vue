@@ -421,7 +421,10 @@ const sortAnswers = (value) => {
                     </div>
                 </div>
             </div>
-            <div class="mt-4 flex justify-end">
+            <div
+                class="mt-4 flex justify-end"
+                v-if="answers.total > answers.data.length"
+            >
                 <Pagination :links="answers.links" />
             </div>
         </div>

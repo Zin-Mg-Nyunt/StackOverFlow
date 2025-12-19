@@ -5,7 +5,7 @@ import SingleQuestion from '../components/SingleQuestion.vue';
 const tags = ['Interesting', 'Bountied', 'Hot', 'Week', 'Month'];
 
 let { questions, filters } = defineProps({
-    questions: Array,
+    questions: Object,
     filters: Object,
 });
 </script>
@@ -52,7 +52,7 @@ let { questions, filters } = defineProps({
                 {{ filter }}
             </button>
             <span class="ml-auto text-xs text-zinc-500 dark:text-zinc-400"
-                >{{ questions.length }} questions · updated live</span
+                >{{ questions.data.length }} questions · updated live</span
             >
         </div>
     </div>

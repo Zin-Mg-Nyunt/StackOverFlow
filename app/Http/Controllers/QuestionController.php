@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Question;
 use App\Services\QuestionService;
-
+use Inertia\Inertia;
 
 class QuestionController extends Controller
 {
     public function index(){
         return inertia('Questions/Index', [
             'filters' => request(['search','tag']),
-            'questions' => Question::withCount("answers")->filter(request(['search','tag']))->latest()->get(),
+            'questions' => Inertia::scroll(Question::withCount("answers")->filter(request(['search','tag']))->latest()->paginate(10)),
         ]);
     }
     public function show(Question $question){

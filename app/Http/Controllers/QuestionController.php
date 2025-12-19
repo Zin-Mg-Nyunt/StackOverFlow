@@ -9,9 +9,18 @@ use Inertia\Inertia;
 class QuestionController extends Controller
 {
     public function index(){
+        $questions = Question::withCount("answers")
+                        ->filter(request(['search','tag']))
+                        ->latest()
+                        ->paginate(10)
+                        ->through(function($q){
+                            $q->authorized = $q->user_id == auth()->id();
+                            return $q;
+                        })
+                        ->withQueryString();
         return inertia('Questions/Index', [
             'filters' => request(['search','tag']),
-            'questions' => Inertia::scroll(Question::withCount("answers")->filter(request(['search','tag']))->latest()->paginate(10)),
+            'questions' => Inertia::scroll($questions),
         ]);
     }
     public function show(Question $question){
@@ -70,5 +79,9 @@ class QuestionController extends Controller
         ]);
         $newQuestion=$questionService->createQuestion($newQuestion);
         return redirect()->route('questions.detail', $newQuestion->id);
+    }
+    public function destroy(Question $question){
+        $question->delete();
+        return redirect()->route('home');
     }
 }

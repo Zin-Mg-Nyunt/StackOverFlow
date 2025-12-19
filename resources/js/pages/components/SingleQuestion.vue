@@ -1,8 +1,11 @@
 <script setup>
 import useFilter from '@/composables/useFilter';
-import { InfiniteScroll, Link } from '@inertiajs/vue3';
+import { InfiniteScroll, Link, router } from '@inertiajs/vue3';
+import { inject } from 'vue';
 import formatTime from '../../composables/formatDate';
+import DeleteQuestionModal from './DeleteQuestionModal.vue';
 
+const route = inject('route');
 let { search, slug } = useFilter();
 let { questions, filters } = defineProps({
     questions: Object,
@@ -14,9 +17,9 @@ const handleEdit = (questionId) => {
     console.log('Edit question:', questionId);
 };
 
-const handleDelete = (questionId) => {
-    // TODO: Implement delete functionality
-    console.log('Delete question:', questionId);
+const handleDelete = (questionId, onComplete) => {
+    router.delete(route('question.delete', questionId));
+    onComplete();
 };
 </script>
 <template>
@@ -24,7 +27,7 @@ const handleDelete = (questionId) => {
         <article
             v-for="question in questions.data"
             :key="question.id"
-            class="group cursor-pointer rounded-2xl border border-zinc-200 bg-white/90 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/80"
+            class="group mt-4 cursor-pointer rounded-2xl border border-zinc-200 bg-white/90 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900/80"
         >
             <div class="flex gap-4">
                 <div
@@ -74,27 +77,81 @@ const handleDelete = (questionId) => {
                         </span>
                     </div>
                     <div
-                        class="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400"
+                        class="flex items-center justify-between"
+                        v-if="question.authorized"
                     >
-                        <span class="flex items-center gap-2">
-                            <span
-                                class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-[10px] font-bold text-white"
-                            >
-                                {{
-                                    question.author.name
-                                        .slice(0, 2)
-                                        .toUpperCase()
-                                }}
+                        <div
+                            class="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400"
+                        >
+                            <span class="flex items-center gap-2">
+                                <span
+                                    class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-[10px] font-bold text-white"
+                                >
+                                    {{
+                                        question.author.name
+                                            .slice(0, 2)
+                                            .toUpperCase()
+                                    }}
+                                </span>
+                                <span
+                                    class="font-semibold text-zinc-700 dark:text-zinc-200"
+                                    >{{ question.author.name }}</span
+                                >
                             </span>
                             <span
-                                class="font-semibold text-zinc-700 dark:text-zinc-200"
-                                >{{ question.author.name }}</span
+                                class="h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-600"
+                            />
+                            <span>{{ formatTime(question.created_at) }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button
+                                @click.stop="handleEdit(question.id)"
+                                class="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"
+                                title="Edit question"
                             >
-                        </span>
-                        <span
-                            class="h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-600"
-                        />
-                        <span>{{ formatTime(question.created_at) }}</span>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-3.5 w-3.5"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                    />
+                                </svg>
+                                Edit
+                            </button>
+                            <DeleteQuestionModal
+                                :question-title="question.title"
+                                @confirm="handleDelete(question.id)"
+                            >
+                                <button
+                                    @click.stop
+                                    class="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:border-red-400 hover:bg-red-50 hover:text-red-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-red-400 dark:hover:border-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-300"
+                                    title="Delete question"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="h-3.5 w-3.5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        />
+                                    </svg>
+                                    Delete
+                                </button>
+                            </DeleteQuestionModal>
+                        </div>
                     </div>
                 </div>
             </div>

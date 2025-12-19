@@ -11,6 +11,7 @@ Route::post('/questions/store',[QuestionController::class, 'store'])->name('ques
 Route::get('/questions/{question}',[QuestionController::class, 'show'])->name('questions.detail');
 Route::post('/questions/{question}/answer/store',[AnswerController::class, 'store'])->name('answer.store');
 Route::get('/users/{user}/profile',[UserController::class, 'show'])->name('user.profile');
+Route::delete('/questions/{question}/delete',[QuestionController::class, 'destroy'])->name('question.delete');
 
 
 require __DIR__.'/settings.php';

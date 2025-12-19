@@ -8,6 +8,16 @@ let { questions, filters } = defineProps({
     questions: Object,
     filters: Object,
 });
+
+const handleEdit = (questionId) => {
+    // TODO: Implement edit functionality
+    console.log('Edit question:', questionId);
+};
+
+const handleDelete = (questionId) => {
+    // TODO: Implement delete functionality
+    console.log('Delete question:', questionId);
+};
 </script>
 <template>
     <InfiniteScroll data="questions">

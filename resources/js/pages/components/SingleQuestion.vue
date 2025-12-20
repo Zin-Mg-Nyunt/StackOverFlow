@@ -74,10 +74,7 @@ const handleDelete = (questionId) => {
                             {{ tag.name }}
                         </span>
                     </div>
-                    <div
-                        class="flex items-center justify-between"
-                        v-if="question.authorized"
-                    >
+                    <div class="flex items-center justify-between">
                         <div
                             class="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400"
                         >
@@ -101,7 +98,10 @@ const handleDelete = (questionId) => {
                             />
                             <span>{{ formatTime(question.created_at) }}</span>
                         </div>
-                        <div class="flex items-center gap-2">
+                        <div
+                            class="flex items-center gap-2"
+                            v-if="question.authorized"
+                        >
                             <button
                                 @click.stop="handleEdit(question.id)"
                                 class="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"

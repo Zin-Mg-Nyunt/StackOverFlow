@@ -173,7 +173,16 @@ const popularTags = computed(() => {
                 </div>
             </div>
         </header>
-
+        <template v-if="$page.props.flash.danger">
+            <div class="bg-red-400 p-4 text-center text-white">
+                <p class="font-semibold">{{ $page.props.flash.danger }}</p>
+            </div>
+        </template>
+        <template v-if="$page.props.flash.success">
+            <div class="bg-green-400 p-4 text-center text-white">
+                <p class="font-semibold">{{ $page.props.flash.success }}</p>
+            </div>
+        </template>
         <main
             class="mx-auto grid max-w-screen-2xl grid-cols-12 gap-6 px-6 py-8"
         >
@@ -255,7 +264,7 @@ const popularTags = computed(() => {
                             />
                             <div>
                                 <p
-                                    class="font-semibold text-zinc-800 group-hover:text-sky-600 dark:text-zinc-100 dark:group-hover:text-sky-300"
+                                    class="line-clamp-1 font-semibold text-zinc-800 group-hover:text-sky-600 dark:text-zinc-100 dark:group-hover:text-sky-300"
                                 >
                                     {{ question.title }}
                                 </p>

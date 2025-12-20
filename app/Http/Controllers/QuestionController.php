@@ -32,15 +32,17 @@ class QuestionController extends Controller
             'body' => "required| min: 20"
         ]);
         $newQuestion=$questionService->createQuestion($newQuestion);
-        return redirect()->route('questions.detail', $newQuestion->id);
+        return redirect()->route('questions.detail', $newQuestion->id)->with('success','Question created successfully');
     }
     public function destroy(Question $question){
         Gate::authorize('delete',$question);
         $question->delete();
-        return redirect()->route('home');
+        return redirect()->route('home')->with('success','Question deleted successfully');
     }
     public function edit(Question $question){
-        Gate::authorize('update',$question);
+        if (Gate::denies('update',$question)) {
+            return redirect()->back()->with('danger','You are not authorized to edit this question');
+        }
         return inertia('Questions/QuestionForm',[
             'question' => $question,
         ]);
@@ -52,6 +54,6 @@ class QuestionController extends Controller
             'body' => "required| min: 20"
         ]);
         $question->update($updateQuestion);
-        return redirect()->route('questions.detail', $question->id);
+        return redirect()->route('questions.detail', $question->id)->with('success','Question updated successfully');
     }
 }

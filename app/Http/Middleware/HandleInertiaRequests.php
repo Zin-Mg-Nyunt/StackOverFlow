@@ -49,7 +49,11 @@ class HandleInertiaRequests extends Middleware
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
             'latestQuestions' => Question::latest()->take(3)->get(),
-            'tags' => Tag::withCount('questions')->get()
+            'tags' => Tag::withCount('questions')->get(),
+            'flash' =>[
+                'success' => $request->session()->get('success'),
+                'danger' => $request->session()->get('danger'),
+            ]
         ];
     }
 }

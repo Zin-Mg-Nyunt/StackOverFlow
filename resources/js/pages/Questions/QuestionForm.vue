@@ -1,8 +1,11 @@
 <script setup>
 import InputError from '@/components/InputError.vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { slugify } from '@/composables/slugify';
+import { titleCase } from '@/composables/titleCase';
+import { Link, useForm, usePage } from '@inertiajs/vue3';
 import { inject, ref } from 'vue';
 
+let page = usePage();
 const route = inject('route');
 
 const { question } = defineProps({
@@ -12,8 +15,9 @@ const { question } = defineProps({
 const form = useForm({
     title: question?.title || '',
     body: question?.body || '',
+    tags: question?.tags || [],
 });
-
+let tags = ref('');
 const showPreview = ref(false);
 
 const submit = () => {
@@ -31,30 +35,48 @@ const goBack = () => {
     window.history.back();
 };
 // Add tag functionality
-// const addTag = (tag) => {
-//     if (!form.tags.includes(tag.trim()) && tag.trim()) {
-//         form.tags.push(tag.trim());
-//     }
-// };
+const addTag = (tag) => {
+    if (form.tags.some((t) => t.name.toLowerCase() == tag.name.toLowerCase())) {
+        return;
+    }
+    form.tags.push(tag);
+};
+// Remove tag
+const removeTag = (tagToRemove) => {
+    form.tags = form.tags.filter(
+        (t) => t.name.toLowerCase() !== tagToRemove.name.toLowerCase(),
+    );
+};
 
-// // Remove tag
-// const removeTag = (tagToRemove) => {
-//     form.tags = form.tags.filter((t) => t !== tagToRemove);
-// };
-
-// // Popular tags suggestions
-// const popularTags = [
-//     'javascript',
-//     'vue',
-//     'laravel',
-//     'inertiajs',
-//     'tailwindcss',
-//     'php',
-//     'mysql',
-//     'api',
-//     'authentication',
-//     'validation',
-// ];
+const inputAddTag = (e) => {
+    if (e.key == ',') {
+        let existingTag = page.props.tags.find(
+            (t) =>
+                t.name.toLowerCase() ==
+                tags.value.replace(',', '').toLowerCase(),
+        );
+        if (existingTag) {
+            addTag(existingTag);
+        } else {
+            const name = titleCase(tags.value.replace(',', ''));
+            const slug = slugify(name);
+            if (
+                form.tags.some(
+                    (t) => t.name.toLowerCase() == name.toLowerCase(),
+                )
+            ) {
+                tags.value = '';
+                return;
+            }
+            form.tags.push({
+                name,
+                slug,
+                is_new: true,
+            });
+        }
+        tags.value = '';
+    }
+};
 </script>
 
 <template>
@@ -215,10 +237,10 @@ const goBack = () => {
             </div>
 
             <!-- Tags Section -->
-            <!-- <div
+            <div
                 class="rounded-2xl border border-zinc-200 bg-white/90 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
-            > -->
-            <!-- <div class="space-y-4">
+            >
+                <div class="space-y-4">
                     <div>
                         <label
                             for="tags"
@@ -235,26 +257,35 @@ const goBack = () => {
                         </p>
                         <input
                             id="tags"
-                            v-model="form.tags"
+                            v-model="tags"
+                            @keyup="inputAddTag"
                             type="text"
-                            required
+                            :disabled="form.tags.length >= 5"
                             class="w-full rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-200 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50 dark:placeholder:text-zinc-600 dark:focus:border-sky-500 dark:focus:ring-sky-500/30"
-                            placeholder="e.g., vue, inertiajs, laravel (comma-separated)"
+                            :placeholder="
+                                form.tags.length >= 5
+                                    ? 'You have reached the maximum number of tags'
+                                    : 'hit comma to add a new tag'
+                            "
+                            :class="{
+                                'cursor-not-allowed opacity-70':
+                                    form.tags.length >= 5,
+                            }"
                         />
                         <InputError :message="form.errors.tags" />
-                    </div> -->
+                    </div>
 
-            <!-- Selected Tags -->
-            <!-- <div
+                    <!-- Selected Tags -->
+                    <div
                         v-if="form.tags.length > 0"
                         class="flex flex-wrap gap-2"
                     >
                         <span
                             v-for="tag in form.tags"
-                            :key="tag"
+                            :key="tag.id"
                             class="group flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
                         >
-                            {{ tag }}
+                            {{ tag.name }}
                             <button
                                 type="button"
                                 @click="removeTag(tag)"
@@ -276,10 +307,9 @@ const goBack = () => {
                                 </svg>
                             </button>
                         </span>
-                    </div> -->
-
-            <!-- Popular Tags Suggestions -->
-            <!-- <div v-if="form.tags.length < 5" class="space-y-2">
+                    </div>
+                    <!-- Popular Tags Suggestions -->
+                    <div v-if="form.tags.length < 5" class="space-y-2">
                         <p
                             class="text-xs font-medium text-zinc-600 dark:text-zinc-400"
                         >
@@ -287,8 +317,8 @@ const goBack = () => {
                         </p>
                         <div class="flex flex-wrap gap-2">
                             <button
-                                v-for="tag in popularTags"
-                                :key="tag"
+                                v-for="tag in $page.props.tags"
+                                :key="tag.id"
                                 type="button"
                                 @click="addTag(tag)"
                                 :disabled="
@@ -297,12 +327,12 @@ const goBack = () => {
                                 "
                                 class="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-semibold text-zinc-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-sky-500/60 dark:hover:bg-sky-500/10 dark:hover:text-sky-300"
                             >
-                                {{ tag }}
+                                {{ tag.name }}
                             </button>
                         </div>
-                    </div> -->
-            <!-- </div> -->
-            <!-- </div> -->
+                    </div>
+                </div>
+            </div>
 
             <!-- Submit Section -->
             <div

@@ -17,9 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        User::factory(5)
-            ->has(Question::factory()->count(5))
-            ->create();
+        
         $tags =  [
             [
                 "name"=>"PHP",
@@ -43,10 +41,18 @@ class DatabaseSeeder extends Seeder
             ],
         ];
         foreach ($tags as $tag) {
-            Tag::create([
+            Tag::factory()->create([
                 "name"=>$tag['name'],
                 "slug"=>$tag['slug']
             ]);
         }
+        User::factory(5)
+            ->has(Question::factory()->count(5))
+            ->create()
+            ->each(function($user){
+                $user->questions()->each(function($question){
+                    $question->tags()->attach(Tag::inRandomOrder()->take(rand(1,3))->pluck('id'));
+                });
+            });
     }
 }

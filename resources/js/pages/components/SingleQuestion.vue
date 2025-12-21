@@ -1,4 +1,5 @@
 <script setup>
+import { titleCase } from '@/composables/titleCase.js';
 import useFilter from '@/composables/useFilter';
 import { InfiniteScroll, Link, router } from '@inertiajs/vue3';
 import { inject } from 'vue';
@@ -52,7 +53,7 @@ const handleDelete = (questionId) => {
                         :href="route('questions.detail', question.id)"
                         class="text-xl leading-snug font-semibold text-zinc-900 transition group-hover:text-sky-600 dark:text-zinc-50"
                     >
-                        {{ question.title }}
+                        {{ titleCase(question.title) }}
                     </Link>
                     <p
                         class="line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400"

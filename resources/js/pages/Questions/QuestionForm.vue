@@ -18,9 +18,12 @@ const form = useForm({
     tags: question?.tags || [],
 });
 let tags = ref('');
+let tagsError = ref('');
 const showPreview = ref(false);
 
 const submit = () => {
+    tagsError.value = '';
+    tags.value = '';
     if (question) {
         form.put(route('question.update', question.id), {
             preserveScroll: true,
@@ -49,33 +52,41 @@ const removeTag = (tagToRemove) => {
 };
 
 const inputAddTag = (e) => {
-    if (e.key == ',') {
-        let existingTag = page.props.tags.find(
-            (t) =>
-                t.name.toLowerCase() ==
-                tags.value.replace(',', '').toLowerCase(),
-        );
-        if (existingTag) {
-            addTag(existingTag);
+    let tag = tags.value.replaceAll(',', '').trim();
+    if (tag.length < 3) {
+        tagsError.value = 'Tag must be at least 3 characters long';
+        tags.value = '';
+        return;
+    }
+    if (tag.length > 20) {
+        tagsError.value = 'Tag must be less than 20 characters long';
+        tags.value = '';
+        return;
+    }
+
+    let existingTag = page.props.tags.find(
+        (t) => t.name.toLowerCase() == tag.toLowerCase(),
+    );
+
+    if (existingTag) {
+        addTag(existingTag);
+    } else {
+        const name = titleCase(tag);
+        const slug = slugify(name);
+        if (form.tags.some((t) => t.name.toLowerCase() == name.toLowerCase())) {
+            tagsError.value = 'Tag already exists';
+            tags.value = '';
+            return;
         } else {
-            const name = titleCase(tags.value.replace(',', ''));
-            const slug = slugify(name);
-            if (
-                form.tags.some(
-                    (t) => t.name.toLowerCase() == name.toLowerCase(),
-                )
-            ) {
-                tags.value = '';
-                return;
-            }
             form.tags.push({
                 name,
                 slug,
                 is_new: true,
             });
+            tagsError.value = '';
         }
-        tags.value = '';
     }
+    tags.value = '';
 };
 </script>
 
@@ -258,22 +269,25 @@ const inputAddTag = (e) => {
                         <input
                             id="tags"
                             v-model="tags"
-                            @keyup="inputAddTag"
+                            @keyup.shift.space="inputAddTag"
                             type="text"
                             :disabled="form.tags.length >= 5"
                             class="w-full rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-200 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50 dark:placeholder:text-zinc-600 dark:focus:border-sky-500 dark:focus:ring-sky-500/30"
                             :placeholder="
                                 form.tags.length >= 5
                                     ? 'You have reached the maximum number of tags'
-                                    : 'hit comma to add a new tag'
+                                    : 'hit sift+space to add a new tag'
                             "
                             :class="{
                                 'cursor-not-allowed opacity-70':
                                     form.tags.length >= 5,
                             }"
                         />
-                        <InputError :message="form.errors.tags" />
                     </div>
+
+                    <InputError
+                        :message="tagsError ? tagsError : form.errors.tags"
+                    />
 
                     <!-- Selected Tags -->
                     <div
@@ -283,7 +297,7 @@ const inputAddTag = (e) => {
                         <span
                             v-for="tag in form.tags"
                             :key="tag.id"
-                            class="group flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
+                            class="group relative flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 transition hover:bg-sky-100 dark:bg-sky-500/10 dark:text-sky-300 dark:hover:bg-sky-500/20"
                         >
                             {{ tag.name }}
                             <button
@@ -306,6 +320,11 @@ const inputAddTag = (e) => {
                                     />
                                 </svg>
                             </button>
+                            <span
+                                v-if="tag.is_new"
+                                class="absolute top-0 right-0 rounded-full bg-green-500 px-1 py-1 dark:bg-green-400"
+                            >
+                            </span>
                         </span>
                     </div>
                     <!-- Popular Tags Suggestions -->
@@ -323,7 +342,11 @@ const inputAddTag = (e) => {
                                 @click="addTag(tag)"
                                 :disabled="
                                     form.tags.length >= 5 ||
-                                    form.tags.includes(tag)
+                                    form.tags.some(
+                                        (t) =>
+                                            t.name.toLowerCase() ==
+                                            tag.name.toLowerCase(),
+                                    )
                                 "
                                 class="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-semibold text-zinc-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-600 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-sky-500/60 dark:hover:bg-sky-500/10 dark:hover:text-sky-300"
                             >

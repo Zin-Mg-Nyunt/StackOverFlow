@@ -1,4 +1,5 @@
 <script setup>
+import { titleCase } from '@/composables/titleCase.js';
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
 import useFilter from '../composables/useFilter.js';
@@ -266,7 +267,7 @@ const popularTags = computed(() => {
                                 <p
                                     class="line-clamp-1 font-semibold text-zinc-800 group-hover:text-sky-600 dark:text-zinc-100 dark:group-hover:text-sky-300"
                                 >
-                                    {{ question.title }}
+                                    {{ titleCase(question.title) }}
                                 </p>
                                 <Link
                                     :href="

@@ -29,8 +29,10 @@ class QuestionController extends Controller
     public function store(QuestionService $questionService){
         $newQuestion=request()->validate([
             'title' => "required| min: 5",
-            'body' => "required| min: 20"
+            'body' => "required| min: 20",
+            'tags' => "required | array | min:1 | max:5",
         ]);
+        // create question and sync tags
         $newQuestion=$questionService->createQuestion($newQuestion);
         return redirect()->route('questions.detail', $newQuestion->id)->with('success','Question created successfully');
     }
@@ -51,7 +53,8 @@ class QuestionController extends Controller
         Gate::authorize('update',$question);
         $updateQuestion=request()->validate([
             'title' => "required| min: 5",
-            'body' => "required| min: 20"
+            'body' => "required| min: 20",
+            'tags' => "required | array | min:1 | max:5"
         ]);
         $question->update($updateQuestion);
         return redirect()->route('questions.detail', $question->id)->with('success','Question updated successfully');

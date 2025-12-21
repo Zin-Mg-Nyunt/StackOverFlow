@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\Question;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Tag;
+use Illuminate\Support\Facades\DB;
 
 class QuestionService
 {
@@ -26,8 +28,21 @@ class QuestionService
                         ->withQueryString();
     }
     public function createQuestion($data){
-        $data['user_id']=Auth::id();
-        return Question::create($data);
+        return DB::transaction(function() use($data){
+            $allTagsId = collect($data['tags'])->map(function($tag){
+                $tagObject=Tag::firstOrCreate(
+                    ['name'=>$tag['name']],
+                    ['slug'=>$tag['slug']]
+                );
+                return $tagObject->id;
+            });
+            $questionData = collect($data)->except('tags')->toArray();
+            // add user id to question
+            $questionData['user_id']=Auth::id();
+            $question= Question::create($questionData);
+            $question->tags()->sync($allTagsId); //sync tags with question
+            return $question;
+        });
     }
     public function getAnswers($question){
         return $question->answers()

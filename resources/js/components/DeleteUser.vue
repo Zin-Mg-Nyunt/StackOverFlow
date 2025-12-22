@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
-import { Form } from '@inertiajs/vue3';
+// import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import { useTemplateRef } from 'vue';
 
 // Components
@@ -19,6 +18,22 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useForm } from '@inertiajs/vue3';
+import { inject } from 'vue';
+
+const route = inject('route');
+const form = useForm({
+    password: '',
+});
+
+const deleteUser = () => {
+    form.delete(route('profile.destroy'), {
+        preserveScroll: true,
+        onSuccess: () => form.reset(),
+        onError: () => passwordInput.value?.focus(),
+        onFinish: () => form.reset(),
+    });
+};
 
 const passwordInput = useTemplateRef('passwordInput');
 </script>
@@ -45,16 +60,7 @@ const passwordInput = useTemplateRef('passwordInput');
                     >
                 </DialogTrigger>
                 <DialogContent>
-                    <Form
-                        v-bind="ProfileController.destroy.form()"
-                        reset-on-success
-                        @error="() => passwordInput?.$el?.focus()"
-                        :options="{
-                            preserveScroll: true,
-                        }"
-                        class="space-y-6"
-                        v-slot="{ errors, processing, reset, clearErrors }"
-                    >
+                    <form @submit.prevent="deleteUser" class="space-y-6">
                         <DialogHeader class="space-y-3">
                             <DialogTitle
                                 >Are you sure you want to delete your
@@ -63,9 +69,7 @@ const passwordInput = useTemplateRef('passwordInput');
                             <DialogDescription>
                                 Once your account is deleted, all of its
                                 resources and data will also be permanently
-                                deleted. Please enter your password to confirm
-                                you would like to permanently delete your
-                                account.
+                                deleted. Please enter your password to confirm.
                             </DialogDescription>
                         </DialogHeader>
 
@@ -76,11 +80,11 @@ const passwordInput = useTemplateRef('passwordInput');
                             <Input
                                 id="password"
                                 type="password"
-                                name="password"
+                                v-model="form.password"
                                 ref="passwordInput"
                                 placeholder="Password"
                             />
-                            <InputError :message="errors.password" />
+                            <InputError :message="form.errors.password" />
                         </div>
 
                         <DialogFooter class="gap-2">
@@ -89,8 +93,8 @@ const passwordInput = useTemplateRef('passwordInput');
                                     variant="secondary"
                                     @click="
                                         () => {
-                                            clearErrors();
-                                            reset();
+                                            form.clearErrors();
+                                            form.reset();
                                         }
                                     "
                                 >
@@ -101,13 +105,12 @@ const passwordInput = useTemplateRef('passwordInput');
                             <Button
                                 type="submit"
                                 variant="destructive"
-                                :disabled="processing"
-                                data-test="confirm-delete-user-button"
+                                :disabled="form.processing"
                             >
                                 Delete account
                             </Button>
                         </DialogFooter>
-                    </Form>
+                    </form>
                 </DialogContent>
             </Dialog>
         </div>

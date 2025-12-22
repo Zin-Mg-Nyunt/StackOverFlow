@@ -6,6 +6,7 @@ use App\Models\Question;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tag;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class QuestionService
 {
@@ -29,20 +30,32 @@ class QuestionService
     }
     public function createQuestion($data){
         return DB::transaction(function() use($data){
-            $allTagsId = collect($data['tags'])->map(function($tag){
-                $tagObject=Tag::firstOrCreate(
-                    ['name'=>$tag['name']],
-                    ['slug'=>$tag['slug']]
-                );
-                return $tagObject->id;
-            });
-            $questionData = collect($data)->except('tags')->toArray();
+            [$allTagsId,$questionData] = $this->getTagIdAndQuestionData($data);
+            
             // add user id to question
             $questionData['user_id']=Auth::id();
             $question= Question::create($questionData);
             $question->tags()->sync($allTagsId); //sync tags with question
             return $question;
         });
+    }
+    public function updateQuestion($question,$data){
+        return DB::transaction(function() use($question,$data){
+            [$allTagsId,$questionData] = $this->getTagIdAndQuestionData($data);
+            $question->fill($questionData)->save();
+            $question->tags()->sync($allTagsId); //sync tags with question
+            return $question;
+        });
+    }
+    public function getTagIdAndQuestionData($data){
+        $allTagsId=collect($data['tags'])->map(function($tag){
+            return Tag::firstOrCreate(
+                ['slug'=>Str::slug($tag['name'],'-')],
+                ['name'=>$tag['name']]
+            )->id;
+        });
+        $questionData = collect($data)->except('tags')->toArray();
+        return [$allTagsId,$questionData];
     }
     public function getAnswers($question){
         return $question->answers()

@@ -49,14 +49,14 @@ class QuestionController extends Controller
             'question' => $question,
         ]);
     }
-    public function update(Question $question){
+    public function update(Question $question, QuestionService $questionService){
         Gate::authorize('update',$question);
         $updateQuestion=request()->validate([
             'title' => "required| min: 5",
             'body' => "required| min: 20",
             'tags' => "required | array | min:1 | max:5"
         ]);
-        $question->update($updateQuestion);
-        return redirect()->route('questions.detail', $question->id)->with('success','Question updated successfully');
+        $updatedQuestion=$questionService->updateQuestion($question,$updateQuestion);
+        return redirect()->route('questions.detail', $updatedQuestion->id)->with('success','Question updated successfully');
     }
 }

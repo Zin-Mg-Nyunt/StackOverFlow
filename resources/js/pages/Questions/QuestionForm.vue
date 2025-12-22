@@ -39,16 +39,16 @@ const goBack = () => {
 };
 // Add tag functionality
 const addTag = (tag) => {
-    if (form.tags.some((t) => t.name.toLowerCase() == tag.name.toLowerCase())) {
+    if (form.tags.some((t) => t.slug == tag.slug)) {
+        tagsError.value = 'Tag already exists';
+        tags.value = '';
         return;
     }
     form.tags.push(tag);
 };
 // Remove tag
 const removeTag = (tagToRemove) => {
-    form.tags = form.tags.filter(
-        (t) => t.name.toLowerCase() !== tagToRemove.name.toLowerCase(),
-    );
+    form.tags = form.tags.filter((t) => t.slug !== tagToRemove.slug);
 };
 
 const inputAddTag = (e) => {
@@ -64,16 +64,14 @@ const inputAddTag = (e) => {
         return;
     }
 
-    let existingTag = page.props.tags.find(
-        (t) => t.name.toLowerCase() == tag.toLowerCase(),
-    );
+    let existingTag = page.props.tags.find((t) => t.slug == slugify(tag));
 
     if (existingTag) {
         addTag(existingTag);
     } else {
         const name = titleCase(tag);
         const slug = slugify(name);
-        if (form.tags.some((t) => t.name.toLowerCase() == name.toLowerCase())) {
+        if (form.tags.some((t) => t.slug == slug)) {
             tagsError.value = 'Tag already exists';
             tags.value = '';
             return;

@@ -23,7 +23,7 @@ class QuestionService
                         ->latest()
                         ->paginate(10)
                         ->through(function($q){
-                            $q->authorized = $q->user_id == auth()->id();
+                            $q->authorized = $q->user_id == Auth::id();
                             return $q;
                         })
                         ->withQueryString();

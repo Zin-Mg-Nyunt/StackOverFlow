@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Question;
 use App\Services\QuestionService;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class QuestionController extends Controller
@@ -29,12 +30,13 @@ class QuestionController extends Controller
     public function store(QuestionService $questionService){
         $newQuestion=request()->validate([
             'title' => "required| min: 5",
+            'slug' => "required| unique:questions",
             'body' => "required| min: 20",
             'tags' => "required | array | min:1 | max:5",
         ]);
         // create question and sync tags
         $newQuestion=$questionService->createQuestion($newQuestion);
-        return redirect()->route('questions.detail', $newQuestion->id)->with('success','Question created successfully');
+        return redirect()->route('questions.detail', $newQuestion->slug)->with('success','Question created successfully');
     }
     public function destroy(Question $question){
         Gate::authorize('delete',$question);
@@ -53,10 +55,11 @@ class QuestionController extends Controller
         Gate::authorize('update',$question);
         $updateQuestion=request()->validate([
             'title' => "required| min: 5",
+            'slug' => ['required',Rule::unique('questions')->ignore($question->id)],
             'body' => "required| min: 20",
             'tags' => "required | array | min:1 | max:5"
         ]);
         $updatedQuestion=$questionService->updateQuestion($question,$updateQuestion);
-        return redirect()->route('questions.detail', $updatedQuestion->id)->with('success','Question updated successfully');
+        return redirect()->route('questions.detail', $updatedQuestion->slug)->with('success','Question updated successfully');
     }
 }

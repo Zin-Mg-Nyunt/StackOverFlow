@@ -19,6 +19,7 @@ class QuestionFactory extends Factory
     {
         return [
             "title"=>fake()->sentence(),
+            "slug"=>fake()->unique()->slug(),
             "body"=>fake()->paragraph(),
             "user_id"=>User::factory()
         ];

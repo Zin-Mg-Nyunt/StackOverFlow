@@ -14,6 +14,7 @@ const { question } = defineProps({
 
 const form = useForm({
     title: question?.title || '',
+    slug: question?.slug || '',
     body: question?.body || '',
     tags: question?.tags || [],
 });
@@ -24,8 +25,9 @@ const showPreview = ref(false);
 const submit = () => {
     tagsError.value = '';
     tags.value = '';
+    form.slug = slugify(form.title);
     if (question) {
-        form.put(route('question.update', question.id), {
+        form.put(route('question.update', question.slug), {
             preserveScroll: true,
         });
     } else {

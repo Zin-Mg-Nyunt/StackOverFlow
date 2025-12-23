@@ -13,8 +13,8 @@ let { questions, filters } = defineProps({
     filters: Object,
 });
 
-const handleEdit = (questionId) => {
-    router.get(route('question.edit', questionId));
+const handleEdit = (questionSlug) => {
+    router.get(route('question.edit', questionSlug));
 };
 
 const handleDelete = (questionId) => {
@@ -50,7 +50,7 @@ const handleDelete = (questionId) => {
                 </div>
                 <div class="flex-1 space-y-2">
                     <Link
-                        :href="route('questions.detail', question.id)"
+                        :href="route('questions.detail', question.slug)"
                         class="text-xl leading-snug font-semibold text-zinc-900 transition group-hover:text-sky-600 dark:text-zinc-50"
                     >
                         {{ titleCase(question.title) }}
@@ -104,7 +104,7 @@ const handleDelete = (questionId) => {
                             v-if="question.authorized"
                         >
                             <button
-                                @click.stop="handleEdit(question.id)"
+                                @click.stop="handleEdit(question.slug)"
                                 class="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"
                                 title="Edit question"
                             >

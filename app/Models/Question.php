@@ -36,4 +36,11 @@ class Question extends Model
             });
         });
     }
+
+    public function getImageUrlAttribute($value){
+        if($value){
+            return asset('storage/'.$value);
+        }
+        return null;
+    }
 }

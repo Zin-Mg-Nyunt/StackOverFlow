@@ -33,7 +33,9 @@ class QuestionController extends Controller
             'slug' => "required| unique:questions",
             'body' => "required| min: 20",
             'tags' => "required | array | min:1 | max:5",
+            'image_url' => "nullable | image | mimes:jpeg,png,jpg,gif,svg | max:2048",
         ]);
+        
         // create question and sync tags
         $newQuestion=$questionService->createQuestion($newQuestion);
         return redirect()->route('questions.detail', $newQuestion->slug)->with('success','Question created successfully');
@@ -57,7 +59,8 @@ class QuestionController extends Controller
             'title' => "required| min: 5",
             'slug' => ['required',Rule::unique('questions')->ignore($question->id)],
             'body' => "required| min: 20",
-            'tags' => "required | array | min:1 | max:5"
+            'tags' => "required | array | min:1 | max:5",
+            'image_url' => "nullable | image | mimes:jpeg,png,jpg,gif,svg | max:2048",
         ]);
         $updatedQuestion=$questionService->updateQuestion($question,$updateQuestion);
         return redirect()->route('questions.detail', $updatedQuestion->slug)->with('success','Question updated successfully');

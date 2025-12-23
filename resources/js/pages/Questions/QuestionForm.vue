@@ -17,9 +17,11 @@ const form = useForm({
     slug: question?.slug || '',
     body: question?.body || '',
     tags: question?.tags || [],
+    image_url: question?.image_url || null,
 });
 let tags = ref('');
 let tagsError = ref('');
+let imagePreview = ref('');
 const showPreview = ref(false);
 
 const submit = () => {
@@ -87,6 +89,18 @@ const inputAddTag = (e) => {
         }
     }
     tags.value = '';
+};
+
+const submitImage = (e) => {
+    let file = e.target.files[0];
+    if (file) {
+        form.image_url = file;
+        imagePreview.value = URL.createObjectURL(file);
+    }
+};
+const removeImage = () => {
+    form.image_url = null;
+    imagePreview.value = '';
 };
 </script>
 
@@ -357,6 +371,49 @@ const inputAddTag = (e) => {
                 </div>
             </div>
 
+            <!-- Image Section -->
+            <div
+                class="rounded-2xl border border-zinc-200 bg-white/90 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
+            >
+                <div class="space-y-4">
+                    <div>
+                        <label
+                            for="image"
+                            class="mb-2 block text-sm font-semibold text-zinc-900 dark:text-zinc-50"
+                        >
+                            Image
+                        </label>
+                    </div>
+                    <div>
+                        <input
+                            type="file"
+                            id="image"
+                            @change="submitImage"
+                            accept="image/*"
+                            class="w-full rounded-lg border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-200 focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50 dark:placeholder:text-zinc-600 dark:focus:border-sky-500 dark:focus:ring-sky-500/30"
+                        />
+                    </div>
+                    <div v-if="form.image_url || imagePreview.length > 0">
+                        <div>
+                            <img
+                                :src="imagePreview || form.image_url"
+                                alt="Image"
+                                class="h-40 w-full rounded-lg object-cover"
+                            />
+                        </div>
+                        <div class="flex justify-end">
+                            <button
+                                type="button"
+                                @click="removeImage"
+                                class="mt-4 cursor-pointer rounded-lg border border-zinc-200 px-6 py-3 text-sm font-semibold text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                            >
+                                Remove Image
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Submit Section -->
             <div
                 class="flex items-center justify-between rounded-2xl border border-zinc-200 bg-white/90 p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
@@ -380,7 +437,7 @@ const inputAddTag = (e) => {
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="rounded-lg bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50"
+                        class="cursor-pointer rounded-lg bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/30 transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <span v-if="form.processing">{{
                             question ? 'Updating...' : 'Posting...'

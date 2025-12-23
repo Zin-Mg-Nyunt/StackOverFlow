@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Question;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tag;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -34,6 +35,9 @@ class QuestionService
             
             // add user id to question
             $questionData['user_id']=Auth::id();
+            if(isset($questionData['image_url'])){
+                $questionData['image_url']=$questionData['image_url']->store('questions','public');
+            }
             $question= Question::create($questionData);
             $question->tags()->sync($allTagsId); //sync tags with question
             return $question;
@@ -42,6 +46,12 @@ class QuestionService
     public function updateQuestion($question,$data){
         return DB::transaction(function() use($question,$data){
             [$allTagsId,$questionData] = $this->getTagIdAndQuestionData($data);
+            if(isset($data['image_url'])){
+                if($question->image_url){
+                    Storage::disk('public')->delete($question->image_url);
+                }
+                $questionData['image_url']=$data['image_url']->store('questions','public');
+            }
             $question->fill($questionData)->save();
             $question->tags()->sync($allTagsId); //sync tags with question
             return $question;

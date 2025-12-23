@@ -90,6 +90,21 @@ const sortAnswers = (value) => {
         <div
             class="rounded-2xl border border-zinc-200 bg-white/90 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
         >
+            <!-- Question Image -->
+            <div v-if="question.image_url" class="p-6">
+                <div
+                    class="group relative overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800/50"
+                >
+                    <img
+                        :src="question.image_url"
+                        :alt="question.title"
+                        class="h-auto w-full object-cover transition-transform group-hover:scale-[1.02]"
+                    />
+                    <div
+                        class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100"
+                    ></div>
+                </div>
+            </div>
             <div class="flex gap-6 p-6">
                 <!-- Voting Section -->
                 <div class="flex w-16 shrink-0 flex-col items-center gap-4">

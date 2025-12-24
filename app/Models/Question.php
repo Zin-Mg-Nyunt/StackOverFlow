@@ -22,6 +22,9 @@ class Question extends Model
     {
         return $this->hasMany(Answer::class,'question_id');
     }
+    public function votes(){
+        return $this->morphMany(Vote::class,"votable");
+    }
 
     public function scopeFilter($query,$filter){
         $query->when($filter['search']??false,function($query,$search){
@@ -42,5 +45,11 @@ class Question extends Model
             return asset('storage/'.$value);
         }
         return null;
+    }
+    public function upVotes(){
+        return $this->voutes()->where("value","upvote")->get();
+    }
+    public function downVotes(){
+        return $this->voutes()->where("value","downvote")->get();
     }
 }

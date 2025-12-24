@@ -35,21 +35,25 @@ class QuestionService
             
             // add user id to question
             $questionData['user_id']=Auth::id();
-            if(isset($questionData['image_url'])){
-                $questionData['image_url']=$questionData['image_url']->store('questions','public');
+            if(isset($data['image_url'])){
+                $questionData['image_url']=$data['image_url']->store('questions','public');
             }
             $question= Question::create($questionData);
             $question->tags()->sync($allTagsId); //sync tags with question
             return $question;
-        });
+    });
     }
     public function updateQuestion($question,$data){
         return DB::transaction(function() use($question,$data){
             [$allTagsId,$questionData] = $this->getTagIdAndQuestionData($data);
+            // check if image url is set by user
             if(isset($data['image_url'])){
+                // check if image url is already set by user in database
                 if($question->image_url){
-                    Storage::disk('public')->delete($question->image_url);
+                    // delete old image url
+                    Storage::disk('public')->delete($question->getRawOriginal('image_url'));
                 }
+                // add new image url to question data
                 $questionData['image_url']=$data['image_url']->store('questions','public');
             }
             $question->fill($questionData)->save();

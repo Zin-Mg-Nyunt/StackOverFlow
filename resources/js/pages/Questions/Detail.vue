@@ -33,6 +33,16 @@ const sortAnswers = (value) => {
         },
     );
 };
+const votes = (value, votable_type, votable_id) => {
+    let data = {
+        votable_type,
+        votable_id,
+        value,
+    };
+    router.post(route('vote.store', data), {
+        preserveScroll: true,
+    });
+};
 </script>
 
 <template>
@@ -110,6 +120,7 @@ const sortAnswers = (value) => {
                 <div class="flex w-16 shrink-0 flex-col items-center gap-4">
                     <button
                         class="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-600 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"
+                        @click="votes('upvote', 'question', question.id)"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -129,10 +140,11 @@ const sortAnswers = (value) => {
                     <span
                         class="text-xl font-bold text-zinc-900 dark:text-zinc-50"
                     >
-                        42
+                        0
                     </span>
                     <button
                         class="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-600 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"
+                        @click="votes('downvote', 'question', question.id)"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

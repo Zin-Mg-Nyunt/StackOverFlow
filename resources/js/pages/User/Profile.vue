@@ -226,7 +226,7 @@ const formatNumber = (num) => {
                         </div>
                         <div class="flex-1 space-y-3">
                             <Link
-                                :href="route('questions.detail', question.id)"
+                                :href="route('questions.detail', question.slug)"
                                 class="block text-lg leading-snug font-semibold text-zinc-900 transition hover:text-sky-600 dark:text-zinc-50 dark:hover:text-sky-400"
                             >
                                 {{ question.title }}
@@ -288,7 +288,9 @@ const formatNumber = (num) => {
                             :href="
                                 route(
                                     'questions.detail',
-                                    answer.question.id + '#answer-' + answer.id,
+                                    answer.question.slug +
+                                        '#answer-' +
+                                        answer.id,
                                 )
                             "
                             class="block text-lg leading-snug font-semibold text-zinc-900 transition hover:text-sky-600 dark:text-zinc-50 dark:hover:text-sky-400"

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Question;
 use App\Services\QuestionService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -17,8 +18,10 @@ class QuestionController extends Controller
         ]);
     }
     public function show(Question $question, QuestionService $questionService){
+        // dd($question->votes()->where("user_id",Auth::id())->first()?->value);
         return inertia('Questions/Detail',[
-            'question' => $question,
+            'question' => $question->loadCount('upvotes','downvotes'),
+            'userVote' => $question->votes()->where("user_id",Auth::id())->first()?->value,
             'answers' => $questionService->getAnswers($question),
             'sort' => request('sort'),
             'relatedQuestions' => $questionService->getRelatedQuestions($question),

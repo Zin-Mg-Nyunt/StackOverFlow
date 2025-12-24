@@ -46,10 +46,10 @@ class Question extends Model
         }
         return null;
     }
-    public function upVotes(){
-        return $this->voutes()->where("value","upvote")->get();
+    public function upvotes(){
+        return $this->votes()->where("value","upvote");
     }
-    public function downVotes(){
-        return $this->voutes()->where("value","downvote")->get();
+    public function downvotes(){
+        return $this->votes()->where("value","downvote");
     }
 }

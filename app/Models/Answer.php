@@ -21,4 +21,11 @@ class Answer extends Model
     public function votes(){
         return $this->morphMany(Vote::class,"votable");
     }
+
+    public function upvotes(){
+        return $this->votes()->where("value","upvote");
+    }
+    public function downvotes(){
+        return $this->votes()->where("value","downvote");
+    }
 }

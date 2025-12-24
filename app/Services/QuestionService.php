@@ -73,8 +73,13 @@ class QuestionService
     }
     public function getAnswers($question){
         return $question->answers()
+                    ->withCount('upvotes','downvotes')
                     ->when(request('sort') === 'latest', function($query){$query->latest();})
                     ->paginate(3)
+                    ->through(function($answer){
+                        $answer['userVote'] = $answer->votes()->where("user_id",Auth::id())->first()?->value;
+                        return $answer;
+                    })
                     ->withQueryString();
     }
     public function getRelatedQuestions($question){

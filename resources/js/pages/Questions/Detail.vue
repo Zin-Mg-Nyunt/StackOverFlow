@@ -4,6 +4,7 @@ import { Link, router, useForm } from '@inertiajs/vue3';
 import { inject } from 'vue';
 import formatTime from '../../composables/formatDate';
 import Pagination from '../components/Pagination.vue';
+import Vote from '../components/Vote.vue';
 
 const route = inject('route');
 let { question, answers, relatedQuestions } = defineProps({
@@ -119,90 +120,14 @@ const votes = (value, votable_type, votable_id) => {
             <div class="flex gap-6 p-6">
                 <!-- Voting Section -->
                 <div class="flex w-16 shrink-0 flex-col items-center gap-4">
-                    <button
-                        class="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-600 dark:border-zinc-700 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"
-                        :class="
-                            userVote === 'upvote'
-                                ? 'bg-sky-200 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400'
-                                : 'bg-zinc-50 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                        "
-                        @click="votes('upvote', 'question', question.id)"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M5 15l7-7 7 7"
-                            />
-                        </svg>
-                    </button>
-                    <span class="flex items-center justify-between gap-2">
-                        <span
-                            class="text-md flex flex-col items-center font-bold text-green-500 dark:text-green-700"
-                        >
-                            {{ question.upvotes_count }}
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="22"
-                                height="22"
-                                viewBox="0 0 24 24"
-                            >
-                                <!-- Icon from Material Design Icons by Pictogrammers - https://github.com/Templarian/MaterialDesign/blob/master/LICENSE -->
-                                <path
-                                    fill="currentColor"
-                                    d="M13 20h-2V8l-5.5 5.5l-1.42-1.42L12 4.16l7.92 7.92l-1.42 1.42L13 8z"
-                                />
-                            </svg>
-                        </span>
-                        <span
-                            class="text-md flex flex-col items-center font-bold text-red-500 dark:text-red-700"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="22"
-                                height="22"
-                                viewBox="0 0 24 24"
-                            >
-                                <!-- Icon from Material Design Icons by Pictogrammers - https://github.com/Templarian/MaterialDesign/blob/master/LICENSE -->
-                                <path
-                                    fill="currentColor"
-                                    d="M11 4h2v12l5.5-5.5l1.42 1.42L12 19.84l-7.92-7.92L5.5 10.5L11 16z"
-                                />
-                            </svg>
-                            {{ question.downvotes_count }}
-                        </span>
-                    </span>
-                    <button
-                        class="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-600 dark:border-zinc-700 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"
-                        :class="
-                            userVote === 'downvote'
-                                ? 'bg-sky-200 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400'
-                                : 'bg-zinc-50 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                        "
-                        @click="votes('downvote', 'question', question.id)"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M19 9l-7 7-7-7"
-                            />
-                        </svg>
-                    </button>
+                    <Vote
+                        @votes="(value, type, id) => votes(value, type, id)"
+                        :userVote="userVote"
+                        :id="question.id"
+                        type="question"
+                        :upvotesCount="question.upvotes_count"
+                        :downvotesCount="question.downvotes_count"
+                    />
                     <button
                         class="mt-2 flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-400 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-500 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-500"
                         title="Bookmark"
@@ -370,91 +295,22 @@ const votes = (value, votable_type, votable_id) => {
                 <div class="flex gap-6 p-6">
                     <!-- Voting Section -->
                     <div class="flex w-16 shrink-0 flex-col items-center gap-4">
-                        <button
-                            class="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-600 dark:border-zinc-700 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"
-                            :class="
-                                answer['userVote'] === 'upvote'
-                                    ? 'bg-sky-200 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400'
-                                    : 'bg-zinc-50 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                            "
-                            @click="votes('upvote', 'answer', answer.id)"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M5 15l7-7 7 7"
-                                />
-                            </svg>
-                        </button>
-                        <span class="flex items-center justify-between gap-2">
-                            <span
-                                class="text-md flex flex-col items-center font-bold text-green-500 dark:text-green-700"
-                            >
-                                {{ answer.upvotes_count }}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="22"
-                                    height="22"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <!-- Icon from Material Design Icons by Pictogrammers - https://github.com/Templarian/MaterialDesign/blob/master/LICENSE -->
-                                    <path
-                                        fill="currentColor"
-                                        d="M13 20h-2V8l-5.5 5.5l-1.42-1.42L12 4.16l7.92 7.92l-1.42 1.42L13 8z"
-                                    />
-                                </svg>
-                            </span>
-                            <span
-                                class="text-md flex flex-col items-center font-bold text-red-500 dark:text-red-700"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="22"
-                                    height="22"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <!-- Icon from Material Design Icons by Pictogrammers - https://github.com/Templarian/MaterialDesign/blob/master/LICENSE -->
-                                    <path
-                                        fill="currentColor"
-                                        d="M11 4h2v12l5.5-5.5l1.42 1.42L12 19.84l-7.92-7.92L5.5 10.5L11 16z"
-                                    />
-                                </svg>
-                                {{ answer.downvotes_count }}
-                            </span>
-                        </span>
-                        <button
-                            class="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-600 dark:border-zinc-700 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-400"
-                            :class="
-                                answer['userVote'] === 'downvote'
-                                    ? 'bg-sky-200 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400'
-                                    : 'bg-zinc-50 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                            "
-                            @click="votes('downvote', 'answer', answer.id)"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="h-5 w-5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M19 9l-7 7-7-7"
-                                />
-                            </svg>
-                        </button>
+                        <Vote
+                            @votes="(value, type, id) => votes(value, type, id)"
+                            :userVote="answer.userVote"
+                            :id="answer.id"
+                            type="answer"
+                            :upvotesCount="answer.upvotes_count"
+                            :downvotesCount="answer.downvotes_count"
+                        />
                     </div>
+                    <!-- 
+                        userVote: String,
+                        id: Number,
+                        type: String,
+                        upvotesCount: Number,
+                        downvotesCount: Number,
+                    -->
 
                     <!-- Answer Body -->
                     <div class="flex-1 space-y-4">

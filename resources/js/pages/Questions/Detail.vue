@@ -13,6 +13,7 @@ let { question, answers, relatedQuestions } = defineProps({
     answers: Object,
     relatedQuestions: Array,
 });
+console.log(answers);
 const answerForm = useForm({
     body: '',
 });

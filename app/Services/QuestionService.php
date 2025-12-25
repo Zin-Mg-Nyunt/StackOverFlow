@@ -73,17 +73,10 @@ class QuestionService
     }
     public function getAnswers($question){
         return $question->answers()
-                    ->with(['votes'=> fn($v)=> $v->where("user_id",Auth::id()) ]) // use eager to query builder before loop
+                    ->with('userVote') // move query builder logic to relationship method in model and call method name
                     ->withCount('upvotes','downvotes')
                     ->when(request('sort') === 'latest', function($query){$query->latest();})
                     ->paginate(3)
-                    ->through(function($answer){
-                        // this cause N+1 problem because use query in loop
-                        // $anser['userVote'] = $answer->votes()->where('user_id',Auth::id())->first()?->value;
-                        $answer['userVote'] = $answer->votes->first()?->value; // reduce N+1 problem
-                        unset($answer->votes); // remove vote list before send data to client-side
-                        return $answer;
-                    })
                     ->withQueryString();
     }
     public function getRelatedQuestions($question){

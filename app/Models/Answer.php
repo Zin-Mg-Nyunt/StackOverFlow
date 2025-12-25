@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Answer extends Model
 {
@@ -27,5 +28,10 @@ class Answer extends Model
     }
     public function downvotes(){
         return $this->votes()->where("value","downvote");
+    }
+
+    public function userVote(){
+        return $this->morphOne(Vote::class, "votable")
+                    ->where('user_id',Auth::id());
     }
 }

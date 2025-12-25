@@ -298,20 +298,13 @@ const votes = (value, votable_type, votable_id) => {
                     <div class="flex w-16 shrink-0 flex-col items-center gap-4">
                         <Vote
                             @votes="(value, type, id) => votes(value, type, id)"
-                            :userVote="answer.userVote"
+                            :userVote="answer.user_vote?.value"
                             :id="answer.id"
                             type="answer"
                             :upvotesCount="answer.upvotes_count"
                             :downvotesCount="answer.downvotes_count"
                         />
                     </div>
-                    <!-- 
-                        userVote: String,
-                        id: Number,
-                        type: String,
-                        upvotesCount: Number,
-                        downvotesCount: Number,
-                    -->
 
                     <!-- Answer Body -->
                     <div class="flex-1 space-y-4">

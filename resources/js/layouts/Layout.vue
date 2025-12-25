@@ -271,7 +271,7 @@ const popularTags = computed(() => {
                                 </p>
                                 <Link
                                     :href="
-                                        route('questions.detail', question.id)
+                                        route('questions.detail', question.slug)
                                     "
                                     class="text-xs text-sky-500"
                                     >Read more

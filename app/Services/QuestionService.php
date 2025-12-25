@@ -19,7 +19,7 @@ class QuestionService
         //
     }
     public function getQuestions(){
-        return Question::withCount("answers")
+        return Question::withCount("answers","votes")
                         ->filter(request(['search','tag']))
                         ->latest()
                         ->paginate(10)
@@ -81,28 +81,7 @@ class QuestionService
     }
     public function getRelatedQuestions($question){
         return cache()->remember("relatedQuestions_".$question->id,now()->addMinute(),function() use($question){
-            // if no tags, get latest questions
-            if ($question->tags->isEmpty()) {
-                return $this->getLatestQuestions($question);
-            }
-            // if has tags, get questions with same tags
-            $tags=$question->tags->pluck('name');
-            $result = Question::whereHas('tags',function($query) use($tags){
-                $query->whereIn('name',$tags);
-            })->where('id','!=',$question->id)->inRandomOrder()->limit(3)->get();
-            // if no result, get latest questions
-            if($result->isEmpty()){
-                $result = $this->getLatestQuestions($question);
-            }elseif ($result->count() <3) {
-                $needed = 3 - $result->count();
-                Question::where('id','!=',$question->id)
-                        ->whereNotIn('id',$result->pluck('id')) //exclude already related questions
-                        ->latest()
-                        ->limit($needed)
-                        ->get()
-                        ->merge($result); //merge with existing results
-            }
-            return $result;
+            return $this->hasTagOrNot($question);
         });
     }
     public function getLatestQuestions($question){
@@ -110,5 +89,29 @@ class QuestionService
                 ->latest()
                 ->limit(3)
                 ->get();
+    }
+    private function hasTagOrNot($question){
+        // if no tags, get latest questions
+        if ($question->tags->isEmpty()) {
+            return $this->getLatestQuestions($question);
+        }
+        // if has tags, get questions with same tags
+        $tags=$question->tags->pluck('name');
+        $result = Question::whereHas('tags',function($query) use($tags){
+            $query->whereIn('name',$tags);
+        })->where('id','!=',$question->id)->inRandomOrder()->limit(3)->get();
+        // if no result, get latest questions
+        if($result->isEmpty()){
+            $result = $this->getLatestQuestions($question);
+        }elseif ($result->count() <3) {
+            $needed = 3 - $result->count();
+            Question::where('id','!=',$question->id)
+                    ->whereNotIn('id',$result->pluck('id')) //exclude already related questions
+                    ->latest()
+                    ->limit($needed)
+                    ->get()
+                    ->merge($result); //merge with existing results
+        }
+        return $result;
     }
 }

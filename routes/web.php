@@ -15,6 +15,6 @@ Route::get('/users/{user}/profile',[UserController::class, 'show'])->name('user.
 Route::delete('/questions/{question}/delete',[QuestionController::class, 'destroy'])->name('question.delete');
 Route::get('/questions/{question:slug}/edit',[QuestionController::class, 'edit'])->name('question.edit');
 Route::put('/questions/{question:slug}/update',[QuestionController::class, 'update'])->name('question.update');
-Route::post('/vote',[VoteController::class, 'toggle'])->name('vote.store');
+Route::post('/vote',[VoteController::class, 'toggle'])->name('vote.store')->middleware('loginUser');
 
 require __DIR__.'/settings.php';

@@ -35,17 +35,17 @@ const handleDelete = (questionId) => {
                     <div
                         class="rounded-lg bg-sky-500/10 px-3 py-2 text-center text-sky-600 ring-1 ring-sky-500/30 dark:text-sky-200"
                     >
-                        {{ question.votes }} votes
+                        {{ question.votes_count ?? 0 }} votes
                     </div>
                     <div
                         class="rounded-lg bg-emerald-500/10 px-3 py-2 text-center text-emerald-600 ring-1 ring-emerald-500/30 dark:text-emerald-200"
                     >
-                        {{ question.answers_count }} answers
+                        {{ question.answers_count ?? 0 }} answers
                     </div>
                     <div
                         class="rounded-lg bg-zinc-100 px-3 py-2 text-center text-zinc-700 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700"
                     >
-                        {{ question.views }} views
+                        {{ question.views ?? 0 }} views
                     </div>
                 </div>
                 <div class="flex-1 space-y-2">

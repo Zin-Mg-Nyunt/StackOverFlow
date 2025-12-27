@@ -21,6 +21,7 @@ class QuestionController extends Controller
         // dd($question->votes()->where("user_id",Auth::id())->first()?->value);
         return inertia('Questions/Detail',[
             'question' => $question->loadCount('upvotes','downvotes'),
+            'isBookmarked' => auth()->check() && $question->savedUsers()->where('user_id',Auth::id())->exists(),
             'userVote' => $question->votes()->where("user_id",Auth::id())->first()?->value,
             'answers' => $questionService->getAnswers($question),
             'sort' => request('sort'),
@@ -67,5 +68,12 @@ class QuestionController extends Controller
         ]);
         $updatedQuestion=$questionService->updateQuestion($question,$updateQuestion);
         return redirect()->route('questions.detail', $updatedQuestion->slug)->with('success','Question updated successfully');
+    }
+    public function save(Question $question){
+        
+        $result = Auth::user()->savedQuestions()->toggle($question->id);
+        $isSaved = count($result['attached']) > 0;
+        return redirect()->back()->with('success', $isSaved ? 'Question saved for later' : 'Question unsaved successfully');
+        
     }
 }

@@ -25,6 +25,9 @@ class Question extends Model
     public function votes(){
         return $this->morphMany(Vote::class,"votable");
     }
+    public function savedUsers(){
+        return $this->belongsToMany(User::class,"question_user");
+    }
 
     public function scopeFilter($query,$filter){
         $query->when($filter['search']??false,function($query,$search){

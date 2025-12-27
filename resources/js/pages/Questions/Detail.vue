@@ -7,13 +7,14 @@ import Pagination from '../components/Pagination.vue';
 import Vote from '../components/Vote.vue';
 
 const route = inject('route');
-let { question, answers, relatedQuestions } = defineProps({
+let { question, answers, relatedQuestions, isBookmarked } = defineProps({
     question: Object,
+    isBookmarked: Boolean,
     userVote: String,
     answers: Object,
     relatedQuestions: Array,
 });
-console.log(answers);
+
 const answerForm = useForm({
     body: '',
 });
@@ -43,6 +44,11 @@ const votes = (value, votable_type, votable_id) => {
         value,
     };
     router.post(route('vote.store', data), {
+        preserveScroll: true,
+    });
+};
+const questionSave = () => {
+    router.post(route('question.save', question.slug), {
         preserveScroll: true,
     });
 };
@@ -130,15 +136,21 @@ const votes = (value, votable_type, votable_id) => {
                         :downvotesCount="question.downvotes_count"
                     />
                     <button
-                        class="mt-2 flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-400 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-500 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-500"
+                        class="mt-2 flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 text-zinc-400 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-500 dark:border-zinc-700 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-500"
                         title="Bookmark"
+                        @click="questionSave"
+                        :class="
+                            isBookmarked
+                                ? 'bg-sky-50 dark:bg-sky-500/10'
+                                : 'bg-zinc-50 dark:bg-zinc-800'
+                        "
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             class="h-4 w-4"
-                            fill="none"
+                            :fill="isBookmarked ? '#00a6f4' : 'none'"
                             viewBox="0 0 24 24"
-                            stroke="currentColor"
+                            :stroke="isBookmarked ? '#00a6f4' : 'currentColor'"
                         >
                             <path
                                 stroke-linecap="round"
@@ -200,11 +212,16 @@ const votes = (value, votable_type, votable_id) => {
                             >
                                 Share
                             </button>
-                            <button
+                            <Link
+                                :href="route('question.edit', question.slug)"
+                                v-if="
+                                    question.author?.id ===
+                                    $page.props.auth.user?.id
+                                "
                                 class="text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
                             >
                                 Edit
-                            </button>
+                            </Link>
                             <button
                                 class="text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
                             >

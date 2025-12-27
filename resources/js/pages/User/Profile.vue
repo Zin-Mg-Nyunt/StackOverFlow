@@ -6,10 +6,11 @@ import Pagination from '../components/Pagination.vue';
 
 let route = inject('route');
 let page = usePage();
-const { profileUser, stats, questions, answers } = defineProps({
+const { profileUser, stats, questions, answers, savedQuestions } = defineProps({
     profileUser: Object,
     stats: Object,
     questions: Array,
+    savedQuestions: Array,
     answers: Object,
 });
 let questionOrAnswer = ref(page.props.state ?? 'q');
@@ -181,6 +182,16 @@ const formatNumber = (num) => {
                     >
                         Answers ({{ stats.answers }})
                     </button>
+                    <button
+                        class="px-1 pb-4 text-sm font-semibold transition hover:text-zinc-900 dark:hover:text-zinc-50"
+                        :class="{
+                            'border-b-2 border-sky-500 text-sky-600 dark:text-sky-400':
+                                questionOrAnswer == 'sq',
+                        }"
+                        @click="stateValue('sq')"
+                    >
+                        Saved Questions ({{ stats.savedQuestions }})
+                    </button>
                 </nav>
             </div>
             <!-- Questions Section -->
@@ -211,12 +222,12 @@ const formatNumber = (num) => {
                             <div
                                 class="rounded-lg bg-sky-500/10 px-3 py-1.5 text-center text-sky-600 ring-1 ring-sky-500/30 dark:text-sky-200"
                             >
-                                {{ question.votes || 0 }} votes
+                                {{ question.votes_count || 0 }} votes
                             </div>
                             <div
                                 class="rounded-lg bg-emerald-500/10 px-3 py-1.5 text-center text-emerald-600 ring-1 ring-emerald-500/30 dark:text-emerald-200"
                             >
-                                {{ question.answers_count }} answers
+                                {{ question.answers_count || 0 }} answers
                             </div>
                             <div
                                 class="rounded-lg bg-zinc-100 px-3 py-1.5 text-center text-zinc-700 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700"
@@ -318,6 +329,87 @@ const formatNumber = (num) => {
                                 >Answered
                                 {{ formatTime(answer.created_at) }}</span
                             >
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Saved Questions Section -->
+            <div class="space-y-4" v-if="questionOrAnswer == 'sq'">
+                <div class="flex items-center justify-between">
+                    <h2
+                        class="text-xl font-bold text-zinc-900 dark:text-zinc-50"
+                    >
+                        Saved Questions
+                    </h2>
+                    <Pagination :links="savedQuestions.links" />
+                </div>
+                <div
+                    v-if="savedQuestions.length === 0"
+                    class="rounded-xl border border-zinc-200 bg-white p-8 text-center dark:border-zinc-800 dark:bg-zinc-900"
+                >
+                    <p class="text-zinc-600 dark:text-zinc-400">
+                        No questions yet. Start save questions for later!
+                    </p>
+                </div>
+
+                <article
+                    v-for="question in savedQuestions.data"
+                    :key="question.id"
+                    class="group rounded-xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
+                >
+                    <div class="flex gap-4">
+                        <div
+                            class="flex w-22 shrink-0 flex-col items-start gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400"
+                        >
+                            <div
+                                class="rounded-lg bg-sky-500/10 px-3 py-1.5 text-center text-sky-600 ring-1 ring-sky-500/30 dark:text-sky-200"
+                            >
+                                {{ question.votes_count || 0 }} votes
+                            </div>
+                            <div
+                                class="rounded-lg bg-emerald-500/10 px-3 py-1.5 text-center text-emerald-600 ring-1 ring-emerald-500/30 dark:text-emerald-200"
+                            >
+                                {{ question.answers_count || 0 }} answers
+                            </div>
+                            <div
+                                class="rounded-lg bg-zinc-100 px-3 py-1.5 text-center text-zinc-700 ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700"
+                            >
+                                {{ question.views || 0 }} views
+                            </div>
+                        </div>
+                        <div class="flex-1 space-y-3">
+                            <Link
+                                :href="route('questions.detail', question.slug)"
+                                class="block text-lg leading-snug font-semibold text-zinc-900 transition hover:text-sky-600 dark:text-zinc-50 dark:hover:text-sky-400"
+                            >
+                                {{ question.title }}
+                            </Link>
+                            <p
+                                class="line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400"
+                            >
+                                {{ question.body }}
+                            </p>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span
+                                    v-for="tag in question.tags"
+                                    :key="tag.id"
+                                    class="rounded-full bg-zinc-100 px-3 py-1 text-xs font-semibold text-zinc-700 transition hover:bg-sky-50 hover:text-sky-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-sky-500/10 dark:hover:text-sky-200"
+                                >
+                                    {{ tag.name }}
+                                </span>
+                            </div>
+                            <div
+                                class="flex items-center justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400"
+                            >
+                                <span>{{
+                                    formatTime(question.created_at)
+                                }}</span>
+                                <span>
+                                    saved at -
+                                    {{ formatTime(question.pivot.created_at) }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </article>

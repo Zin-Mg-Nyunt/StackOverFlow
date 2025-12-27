@@ -56,6 +56,7 @@ class User extends Authenticatable
         return $this->hasMany(Answer::class, 'user_id');
     }
     public function savedQuestions(){
-        return $this->belongsToMany(Question::class,"question_user");
+        return $this->belongsToMany(Question::class,"question_user")
+                    ->withTimestamps();  // to sort savedQuestions by time
     }
 }

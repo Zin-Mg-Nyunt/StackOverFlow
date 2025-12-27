@@ -26,7 +26,8 @@ class Question extends Model
         return $this->morphMany(Vote::class,"votable");
     }
     public function savedUsers(){
-        return $this->belongsToMany(User::class,"question_user");
+        return $this->belongsToMany(User::class,"question_user")
+                    ->withTimestamps(); // to sort savedUsers by time
     }
 
     public function scopeFilter($query,$filter){

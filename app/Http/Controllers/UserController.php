@@ -3,28 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\UserService;
 
 class UserController extends Controller
 {
-    public function show(User $user)
-    {
-        // dd(request('state'));
-        $user->loadCount([
-            'questions',
-            'answers',
-        ]);
-        $questions = $user->questions()
-            ->withCount(['answers'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        $answers = $user->answers()
-            ->with(['question'])
-            ->latest()
-            ->paginate(3)
-            ->withQueryString();
-
+    public function show(User $user, UserService $userService)
+    {     
         // Calculate reputation (simplified: votes from questions)
         // $reputation = $user->questions()->sum('votes') ?? 0;
         $reputation = 0;
@@ -34,15 +18,17 @@ class UserController extends Controller
         $views = 0;
 
         return inertia('User/Profile', [
-            'profileUser' => $user,
+            'profileUser' => $userService->getUser($user),
             'stats' => [
                 'reputation' => $reputation,
                 'questions' => $user->questions_count,
                 'answers' => $user->answers_count,
+                'savedQuestions' => $user->saved_questions_count,
                 'views' => $views,
             ],
-            'questions' => $questions,
-            'answers' => $answers,
+            'questions' => $userService->getQuestions($user),
+            'savedQuestions' => $userService->getSavedQuestions($user),
+            'answers' => $userService->getAnswers($user),
             'state' => request('state'),
         ]);
     }

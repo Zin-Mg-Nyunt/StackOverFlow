@@ -1,21 +1,29 @@
 <script setup>
 import { titleCase } from '@/composables/titleCase.js';
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, inject, onMounted, ref, watch } from 'vue';
 import useFilter from '../composables/useFilter.js';
 
+let route = inject('route');
 const isDark = ref(true);
 let allTags = ref(false);
 let page = usePage();
 let { search, slug } = useFilter();
 
-const navigation = ref([
-    { label: 'Home', active: true },
-    { label: 'Tags', active: false },
-    { label: 'Users', active: false },
-    { label: 'Companies', active: false },
-    { label: 'Collectives', active: false },
-]);
+const navigation = computed(() => {
+    const currentUrl = page.url;
+    return [
+        { label: 'Home', active: route().current('home') },
+        { label: 'Tags', active: false },
+        { label: 'Users', active: false },
+        {
+            label: 'Save',
+            active:
+                route().current('user.profile') && route().params.state == 'sq',
+        },
+        { label: 'Collectives', active: false },
+    ];
+});
 
 const toggleTheme = () => {
     isDark.value = !isDark.value;
@@ -198,10 +206,15 @@ const popularTags = computed(() => {
                     </p>
                     <nav class="space-y-1">
                         <Link
-                            :href="route('home')"
+                            :href="
+                                item.label == 'Save'
+                                    ? $page.props.auth.user
+                                        ? `/users/${$page.props.auth.user?.id}/profile?state=sq`
+                                        : '/login'
+                                    : route('home')
+                            "
                             v-for="item in navigation"
                             :key="item.label"
-                            s
                             :class="[
                                 'flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition',
                                 item.active

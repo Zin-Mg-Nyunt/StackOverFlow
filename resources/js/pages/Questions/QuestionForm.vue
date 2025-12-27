@@ -29,7 +29,10 @@ const submit = () => {
     tags.value = '';
     form.slug = slugify(form.title);
     if (question) {
-        form.put(route('question.update', question.slug), {
+        form.transform((form) => ({
+            ...form,
+            image_url: form.image_url instanceof File ? form.image_url : null,
+        })).put(route('question.update', question.slug), {
             preserveScroll: true,
         });
     } else {
@@ -384,6 +387,7 @@ const removeImage = () => {
                             Image
                         </label>
                     </div>
+                    <InputError :message="form.errors.image_url" />
                     <div>
                         <input
                             type="file"

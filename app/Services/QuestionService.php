@@ -44,8 +44,8 @@ class QuestionService
     });
     }
     public function updateQuestion($question,$data){
+
         return DB::transaction(function() use($question,$data){
-            [$allTagsId,$questionData] = $this->getTagIdAndQuestionData($data);
             // check if image url is set by user
             if(isset($data['image_url'])){
                 // check if image url is already set by user in database
@@ -53,9 +53,12 @@ class QuestionService
                     // delete old image url
                     Storage::disk('public')->delete($question->getRawOriginal('image_url'));
                 }
-                // add new image url to question data
-                $questionData['image_url']=$data['image_url']->store('questions','public');
+                // change new image_url file to path string
+                $data['image_url']=$data['image_url']->store('questions','public');
+            }else{
+                unset($data['image_url']);
             }
+            [$allTagsId,$questionData] = $this->getTagIdAndQuestionData($data);
             $question->fill($questionData)->save();
             $question->tags()->sync($allTagsId); //sync tags with question
             return $question;

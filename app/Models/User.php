@@ -59,4 +59,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Question::class,"question_user")
                     ->withTimestamps();  // to sort savedQuestions by time
     }
+    public function likedQuestions(){
+        return $this->morphedByMany(Question::class,"likeable","likes","user_id","likeable_id");
+    }
 }

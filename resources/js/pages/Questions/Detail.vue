@@ -1,19 +1,22 @@
 <script setup>
 import InputError from '@/components/InputError.vue';
 import { Link, router, useForm } from '@inertiajs/vue3';
-import { inject } from 'vue';
+import { inject, ref } from 'vue';
 import formatTime from '../../composables/formatDate';
 import Pagination from '../components/Pagination.vue';
 import Vote from '../components/Vote.vue';
 
 const route = inject('route');
-let { question, answers, relatedQuestions, isBookmarked } = defineProps({
-    question: Object,
-    isBookmarked: Boolean,
-    userVote: String,
-    answers: Object,
-    relatedQuestions: Array,
-});
+let processing = ref(false);
+let { question, answers, relatedQuestions, isBookmarked, isLiked } =
+    defineProps({
+        question: Object,
+        isBookmarked: Boolean,
+        isLiked: Boolean,
+        userVote: String,
+        answers: Object,
+        relatedQuestions: Array,
+    });
 
 const answerForm = useForm({
     body: '',
@@ -28,7 +31,7 @@ const submitAnswer = () => {
 };
 const sortAnswers = (value) => {
     router.get(
-        route('questions.detail', question.id),
+        route('questions.detail', question.slug),
         {
             sort: value,
         },
@@ -43,14 +46,32 @@ const votes = (value, votable_type, votable_id) => {
         votable_id,
         value,
     };
-    router.post(route('vote.store', data), {
+    router.post(route('vote.store'), data, {
         preserveScroll: true,
     });
 };
 const questionSave = () => {
-    router.post(route('question.save', question.slug), {
-        preserveScroll: true,
-    });
+    router.post(
+        route('question.save', question.slug),
+        {},
+        {
+            preserveScroll: true,
+        },
+    );
+};
+const questionLike = (likeable_type, likeable_id) => {
+    processing.value = !processing.value;
+    router.post(
+        route('like.toggle'),
+        {
+            likeable_type,
+            likeable_id,
+        },
+        {
+            preserveScroll: true,
+            onFinish: () => (processing.value = false),
+        },
+    );
 };
 </script>
 
@@ -160,25 +181,44 @@ const questionSave = () => {
                             />
                         </svg>
                     </button>
-                    <button
-                        class="flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-400 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-500 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-500"
-                        title="Share"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            class="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
+                    <div class="flex flex-col items-center gap-1">
+                        <button
+                            class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-zinc-200 text-zinc-400 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-500 dark:border-zinc-700 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-500"
+                            title="Share"
+                            :disabled="processing"
+                            @click="questionLike('question', question.id)"
+                            :class="[
+                                isLiked
+                                    ? 'bg-sky-50 dark:bg-sky-500/10'
+                                    : 'bg-zinc-50 dark:bg-zinc-800',
+                                processing
+                                    ? 'cursor-not-allowed opacity-70'
+                                    : '',
+                            ]"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                            />
-                        </svg>
-                    </button>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 25 25"
+                            >
+                                <!-- Icon from Unicons by Iconscout - https://github.com/Iconscout/unicons/blob/master/LICENSE -->
+                                <path
+                                    :fill="isLiked ? '#00a6f4' : 'currentColor'"
+                                    d="M21.3 10.08A3 3 0 0 0 19 9h-4.56L15 7.57A4.13 4.13 0 0 0 11.11 2a1 1 0 0 0-.91.59L7.35 9H5a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h12.73a3 3 0 0 0 2.95-2.46l1.27-7a3 3 0 0 0-.65-2.46M7 20H5a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h2Zm13-7.82l-1.27 7a1 1 0 0 1-1 .82H9v-9.79l2.72-6.12a2.11 2.11 0 0 1 1.38 2.78l-.53 1.43a2 2 0 0 0 1.87 2.7H19a1 1 0 0 1 .77.36a1 1 0 0 1 .23.82"
+                                />
+                            </svg>
+                        </button>
+                        <span
+                            :class="[
+                                'text-xs',
+                                question.likes_count > 0
+                                    ? 'font-bold text-sky-500'
+                                    : 'text-zinc-400',
+                            ]"
+                            >{{ question.likes_count }}</span
+                        >
+                    </div>
                 </div>
 
                 <!-- Question Body -->
@@ -344,6 +384,7 @@ const questionSave = () => {
                                     Share
                                 </button>
                                 <button
+                                    v-if="answer.authorized"
                                     class="text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
                                 >
                                     Edit

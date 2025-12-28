@@ -13,15 +13,18 @@ let { search, slug } = useFilter();
 const navigation = computed(() => {
     const currentUrl = page.url;
     return [
-        { label: 'Home', active: route().current('home') },
-        { label: 'Tags', active: false },
-        { label: 'Users', active: false },
+        { label: 'Home', active: route().current('home'), href: route('home') },
+        { label: 'Tags', active: false, href: route('home') },
+        { label: 'Users', active: false, href: route('home') },
         {
             label: 'Save',
             active:
                 route().current('user.profile') && route().params.state == 'sq',
+            href: page.props.auth.user
+                ? `/users/${page.props.auth.user.id}/profile?state=sq`
+                : 'login',
         },
-        { label: 'Collectives', active: false },
+        { label: 'Collectives', active: false, href: route('home') },
     ];
 });
 
@@ -206,14 +209,8 @@ const popularTags = computed(() => {
                     </p>
                     <nav class="space-y-1">
                         <Link
-                            :href="
-                                item.label == 'Save'
-                                    ? $page.props.auth.user
-                                        ? `/users/${$page.props.auth.user?.id}/profile?state=sq`
-                                        : '/login'
-                                    : route('home')
-                            "
                             v-for="item in navigation"
+                            :href="item.href"
                             :key="item.label"
                             :class="[
                                 'flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition',

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Answer;
 use App\Models\Question;
 use App\Services\QuestionService;
 use Illuminate\Support\Facades\Auth;
@@ -18,10 +19,10 @@ class QuestionController extends Controller
         ]);
     }
     public function show(Question $question, QuestionService $questionService){
-        // dd($question->votes()->where("user_id",Auth::id())->first()?->value);
         return inertia('Questions/Detail',[
-            'question' => $question->loadCount('upvotes','downvotes'),
+            'question' => $question->loadCount('upvotes','downvotes','likes'),
             'isBookmarked' => auth()->check() && $question->savedUsers()->where('user_id',Auth::id())->exists(),
+            'isLiked' => auth()->check() && $question->likes()->where('user_id',Auth::id())->exists(),
             'userVote' => $question->votes()->where("user_id",Auth::id())->first()?->value,
             'answers' => $questionService->getAnswers($question),
             'sort' => request('sort'),
@@ -74,6 +75,6 @@ class QuestionController extends Controller
         $result = Auth::user()->savedQuestions()->toggle($question->id);
         $isSaved = count($result['attached']) > 0;
         return redirect()->back()->with('success', $isSaved ? 'Question saved for later' : 'Question unsaved successfully');
-        
     }
+
 }

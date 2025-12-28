@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 class QuestionService
@@ -24,7 +25,7 @@ class QuestionService
                         ->latest()
                         ->paginate(10)
                         ->through(function($q){
-                            $q->authorized = $q->user_id == Auth::id();
+                            $q->authorized = Gate::allows('delete',$q);
                             return $q;
                         })
                         ->withQueryString();
@@ -80,6 +81,10 @@ class QuestionService
                     ->withCount('upvotes','downvotes')
                     ->when(request('sort') === 'latest', function($query){$query->latest();})
                     ->paginate(3)
+                    ->through(function($a){
+                        $a->authorized = $a->user_id === Auth::id();
+                        return $a;
+                    })
                     ->withQueryString();
     }
     public function getRelatedQuestions($question){

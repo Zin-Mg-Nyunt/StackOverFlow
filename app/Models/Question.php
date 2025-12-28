@@ -29,6 +29,9 @@ class Question extends Model
         return $this->belongsToMany(User::class,"question_user")
                     ->withTimestamps(); // to sort savedUsers by time
     }
+    public function likes(){
+        return $this->morphToMany(User::class,"likeable","likes","likeable_id","user_id");
+    }
 
     public function scopeFilter($query,$filter){
         $query->when($filter['search']??false,function($query,$search){

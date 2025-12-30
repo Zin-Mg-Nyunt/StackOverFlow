@@ -78,11 +78,12 @@ class QuestionService
     public function getAnswers($question){
         return $question->answers()
                     ->with('userVote') // move query builder logic to relationship method in model and call method name
-                    ->withCount('upvotes','downvotes')
+                    ->withCount('upvotes','downvotes','likes')
                     ->when(request('sort') === 'latest', function($query){$query->latest();})
                     ->paginate(3)
                     ->through(function($a){
                         $a->authorized = $a->user_id === Auth::id();
+                        $a->likedUser = $a->likes()->where('user_id',Auth::id())->exists();
                         return $a;
                     })
                     ->withQueryString();

@@ -11,7 +11,7 @@ let page = usePage();
 let { search, slug } = useFilter();
 
 const navigation = computed(() => {
-    const currentUrl = page.url;
+    page.url;
     return [
         { label: 'Home', active: route().current('home'), href: route('home') },
         { label: 'Tags', active: false, href: route('home') },
@@ -102,6 +102,7 @@ const popularTags = computed(() => {
                             />
                         </svg>
                         <input
+                            type="search"
                             class="w-full bg-transparent placeholder:text-zinc-400 focus:outline-none dark:placeholder:text-zinc-600"
                             placeholder="Search questions, tags, users..."
                             v-model="search"

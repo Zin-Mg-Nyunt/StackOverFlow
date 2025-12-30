@@ -17,7 +17,7 @@ let { question, answers, relatedQuestions, isBookmarked, isLiked } =
         answers: Object,
         relatedQuestions: Array,
     });
-
+console.log(answers.data);
 const answerForm = useForm({
     body: '',
 });
@@ -59,8 +59,7 @@ const questionSave = () => {
         },
     );
 };
-const questionLike = (likeable_type, likeable_id) => {
-    processing.value = !processing.value;
+const like = (likeable_type, likeable_id) => {
     router.post(
         route('like.toggle'),
         {
@@ -69,6 +68,7 @@ const questionLike = (likeable_type, likeable_id) => {
         },
         {
             preserveScroll: true,
+            onBefore: () => (processing.value = true),
             onFinish: () => (processing.value = false),
         },
     );
@@ -186,7 +186,7 @@ const questionLike = (likeable_type, likeable_id) => {
                             class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-zinc-200 text-zinc-400 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-500 dark:border-zinc-700 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-500"
                             title="Share"
                             :disabled="processing"
-                            @click="questionLike('question', question.id)"
+                            @click="like('question', question.id)"
                             :class="[
                                 isLiked
                                     ? 'bg-sky-50 dark:bg-sky-500/10'
@@ -379,20 +379,31 @@ const questionLike = (likeable_type, likeable_id) => {
                         >
                             <div class="flex flex-wrap items-center gap-4">
                                 <button
-                                    class="text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
+                                    class="cursor-pointer text-sm transition hover:text-sky-600 dark:hover:text-sky-400"
+                                    @click="like('answer', answer.id)"
+                                    :class="
+                                        answer.likedUser
+                                            ? 'text-sky-600 dark:text-sky-400'
+                                            : 'text-zinc-600 dark:text-zinc-400'
+                                    "
                                 >
-                                    Share
+                                    {{
+                                        answer.likes_count == 0
+                                            ? ''
+                                            : answer.likes_count
+                                    }}
+                                    Like
                                 </button>
                                 <button
                                     v-if="answer.authorized"
-                                    class="text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
+                                    class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
                                 >
                                     Edit
                                 </button>
                                 <button
-                                    class="text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
+                                    class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
                                 >
-                                    Follow
+                                    Share
                                 </button>
                             </div>
 
@@ -498,7 +509,7 @@ const questionLike = (likeable_type, likeable_id) => {
                 <Link
                     v-for="related in relatedQuestions"
                     :key="related.id"
-                    :href="'/questions/' + related.id"
+                    :href="'/questions/' + related.slug"
                     class="group flex items-center justify-between rounded-lg border border-zinc-200 p-4 transition hover:border-sky-300 hover:bg-sky-50/50 dark:border-zinc-700 dark:hover:border-sky-500/60 dark:hover:bg-sky-500/5"
                 >
                     <span

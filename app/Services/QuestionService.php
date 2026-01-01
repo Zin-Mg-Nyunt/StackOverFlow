@@ -30,6 +30,16 @@ class QuestionService
                         })
                         ->withQueryString();
     }
+    public function getQuestionDetails($question){
+            return [
+                'question' => $question->loadCount('upvotes','downvotes','likes'),
+                'isBookmarked' => auth()->check() && $question->savedUsers()->where('user_id',Auth::id())->exists(),
+                'isLiked' => auth()->check() && $question->likes()->where('user_id',Auth::id())->exists(),
+                'userVote' => $question->votes()->where("user_id",Auth::id())->first()?->value,
+                'answers' => $this->getAnswers($question),
+                'relatedQuestions' => $this->getRelatedQuestions($question)
+            ];
+    }
     public function createQuestion($data){
         return DB::transaction(function() use($data){
             [$allTagsId,$questionData] = $this->getTagIdAndQuestionData($data);
@@ -78,12 +88,14 @@ class QuestionService
     public function getAnswers($question){
         return $question->answers()
                     ->with('userVote') // move query builder logic to relationship method in model and call method name
-                    ->withCount('upvotes','downvotes','likes')
+                    ->withCount([
+                        'upvotes','downvotes','likes',
+                        'likes as isLiked'=>fn($a)=> $a->where('user_id',Auth::id())])
                     ->when(request('sort') === 'latest', function($query){$query->latest();})
                     ->paginate(3)
                     ->through(function($a){
                         $a->authorized = $a->user_id === Auth::id();
-                        $a->likedUser = $a->likes()->where('user_id',Auth::id())->exists();
+                        $a->likedUser = $a->isLiked > 0;
                         return $a;
                     })
                     ->withQueryString();

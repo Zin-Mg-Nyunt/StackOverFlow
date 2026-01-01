@@ -19,15 +19,10 @@ class QuestionController extends Controller
         ]);
     }
     public function show(Question $question, QuestionService $questionService){
-        return inertia('Questions/Detail',[
-            'question' => $question->loadCount('upvotes','downvotes','likes'),
-            'isBookmarked' => auth()->check() && $question->savedUsers()->where('user_id',Auth::id())->exists(),
-            'isLiked' => auth()->check() && $question->likes()->where('user_id',Auth::id())->exists(),
-            'userVote' => $question->votes()->where("user_id",Auth::id())->first()?->value,
-            'answers' => $questionService->getAnswers($question),
-            'sort' => request('sort'),
-            'relatedQuestions' => $questionService->getRelatedQuestions($question),
-        ]);
+        
+        return inertia('Questions/Detail',array_merge(
+            $questionService->getQuestionDetails($question),['sort' => request('sort')]
+        ));
     }
     public function create(){
         return inertia('Questions/QuestionForm');

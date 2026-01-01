@@ -17,7 +17,6 @@ let { question, answers, relatedQuestions, isBookmarked, isLiked } =
         answers: Object,
         relatedQuestions: Array,
     });
-console.log(answers.data);
 const answerForm = useForm({
     body: '',
 });

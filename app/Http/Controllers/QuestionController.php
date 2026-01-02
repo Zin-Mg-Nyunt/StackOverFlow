@@ -19,10 +19,10 @@ class QuestionController extends Controller
         ]);
     }
     public function show(Question $question, QuestionService $questionService){
-        
-        return inertia('Questions/Detail',array_merge(
-            $questionService->getQuestionDetails($question),['sort' => request('sort')]
-        ));
+        return inertia('Questions/Detail',[
+            ...$questionService->getQuestionDetails($question),
+            'sort' => request('sort'),
+        ]);
     }
     public function create(){
         return inertia('Questions/QuestionForm');

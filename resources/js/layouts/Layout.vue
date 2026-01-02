@@ -67,7 +67,7 @@ const popularTags = computed(() => {
                         href="/"
                         class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 via-indigo-500 to-blue-600 text-lg font-semibold text-white shadow-lg shadow-sky-500/20"
                     >
-                        SO
+                        <img src="/favicon.png" alt="" />
                     </Link>
                     <div>
                         <p

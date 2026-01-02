@@ -7,7 +7,7 @@ import { initializeTheme } from './composables/useAppearance';
 import Layout from './layouts/Layout.vue';
 import { Ziggy } from './ziggy.js';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'Stack Overflow';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

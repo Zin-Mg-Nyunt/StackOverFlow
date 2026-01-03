@@ -40,4 +40,17 @@ class Answer extends Model
     public function likedUser(){
         return $this->likes()->where('user_id',Auth::id());
     }
+
+    // parent answer (one to one) self-referencing relationship
+    public function parent(){
+        return $this->belongsTo(Answer::class,"parent_id");
+    }
+    // child answers (one to many) self-referencing relationship
+    public function replies(){
+        return $this->hasMany(Answer::class,"parent_id");
+    }
+    // latest reply from many replies
+    public function latestReply(){
+        return $this->replies()->latestOfMany();
+    } 
 }

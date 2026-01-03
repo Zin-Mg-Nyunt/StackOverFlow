@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Answer;
 use App\Models\Question;
+use App\Services\AnswerService;
 use App\Services\QuestionService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -18,9 +19,10 @@ class QuestionController extends Controller
             'questions' => Inertia::scroll($questionService->getQuestions()),
         ]);
     }
-    public function show(Question $question, QuestionService $questionService){
+    public function show(Question $question, QuestionService $questionService, AnswerService $answerService){
         return inertia('Questions/Detail',[
             ...$questionService->getQuestionDetails($question),
+            'answers' => $answerService->getAnswers($question),
             'sort' => request('sort'),
         ]);
     }

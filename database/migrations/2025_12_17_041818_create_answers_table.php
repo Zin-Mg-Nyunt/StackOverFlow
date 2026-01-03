@@ -16,6 +16,7 @@ return new class extends Migration
             $table->text("body");
             $table->foreignId("user_id")->constrained("users")->cascadeOnDelete();
             $table->foreignId("question_id")->constrained("questions")->cascadeOnDelete();
+            $table->foreignId("parent_id")->nullable()->constrained("answers")->cascadeOnDelete();
             $table->timestamps();
         });
     }

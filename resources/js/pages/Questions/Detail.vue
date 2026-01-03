@@ -402,6 +402,11 @@ const like = (likeable_type, likeable_id) => {
                                 <button
                                     class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
                                 >
+                                    Reply
+                                </button>
+                                <button
+                                    class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
+                                >
                                     Share
                                 </button>
                             </div>
@@ -448,6 +453,26 @@ const like = (likeable_type, likeable_id) => {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <p
+                            class="text-sm text-zinc-600 dark:text-zinc-400"
+                            v-if="
+                                answer.replies_count === 1 &&
+                                answer.latest_reply
+                            "
+                            @click="showReply(answer.latest_reply.id)"
+                        >
+                            {{ answer.latest_reply.author.name }} replied to
+                            {{ answer.author.name }}
+                        </p>
+                        <p
+                            class="text-sm text-zinc-600 dark:text-zinc-400"
+                            v-if="answer.replies_count > 1"
+                            @click="showReplies(answer.id)"
+                        >
+                            View all {{ answer.replies_count }} replies
+                        </p>
                     </div>
                 </div>
             </div>

@@ -1,13 +1,14 @@
 <script setup>
 import InputError from '@/components/InputError.vue';
+import useLike from '@/composables/useLike';
 import { Link, router, useForm } from '@inertiajs/vue3';
-import { inject, ref } from 'vue';
+import { inject } from 'vue';
 import formatTime from '../../composables/formatDate';
+import Answer from '../components/Answer.vue';
 import Pagination from '../components/Pagination.vue';
 import Vote from '../components/Vote.vue';
 
 const route = inject('route');
-let processing = ref(false);
 let { question, answers, relatedQuestions, isBookmarked, isLiked } =
     defineProps({
         question: Object,
@@ -17,9 +18,13 @@ let { question, answers, relatedQuestions, isBookmarked, isLiked } =
         answers: Object,
         relatedQuestions: Array,
     });
+
 const answerForm = useForm({
     body: '',
 });
+
+let { like, processing } = useLike();
+
 const submitAnswer = () => {
     answerForm.post(route('answer.store', question.id), {
         preserveScroll: true,
@@ -28,6 +33,7 @@ const submitAnswer = () => {
         },
     });
 };
+
 const sortAnswers = (value) => {
     router.get(
         route('questions.detail', question.slug),
@@ -39,36 +45,13 @@ const sortAnswers = (value) => {
         },
     );
 };
-const votes = (value, votable_type, votable_id) => {
-    let data = {
-        votable_type,
-        votable_id,
-        value,
-    };
-    router.post(route('vote.store'), data, {
-        preserveScroll: true,
-    });
-};
+
 const questionSave = () => {
     router.post(
         route('question.save', question.slug),
         {},
         {
             preserveScroll: true,
-        },
-    );
-};
-const like = (likeable_type, likeable_id) => {
-    router.post(
-        route('like.toggle'),
-        {
-            likeable_type,
-            likeable_id,
-        },
-        {
-            preserveScroll: true,
-            onBefore: () => (processing.value = true),
-            onFinish: () => (processing.value = false),
         },
     );
 };
@@ -148,7 +131,6 @@ const like = (likeable_type, likeable_id) => {
                 <!-- Voting Section -->
                 <div class="flex w-16 shrink-0 flex-col items-center gap-4">
                     <Vote
-                        @votes="(value, type, id) => votes(value, type, id)"
                         :userVote="userVote"
                         :id="question.id"
                         type="question"
@@ -315,7 +297,8 @@ const like = (likeable_type, likeable_id) => {
         <div class="space-y-4">
             <div class="flex items-center justify-between">
                 <h2 class="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-                    {{ answers.data?.length }} of {{ answers.total }} Answers
+                    {{ answers.data?.length }} of
+                    {{ question.answers_count }} Answers
                 </h2>
                 <div class="flex items-center gap-2">
                     <span class="text-sm text-zinc-600 dark:text-zinc-400">
@@ -343,139 +326,8 @@ const like = (likeable_type, likeable_id) => {
             </div>
 
             <!-- Answers List -->
-            <div
-                v-for="answer in answers.data"
-                :key="answer.id"
-                :id="'answer-' + answer.id"
-                class="rounded-2xl border border-zinc-200 bg-white/90 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
-            >
-                <div class="flex gap-6 p-6">
-                    <!-- Voting Section -->
-                    <div class="flex w-16 shrink-0 flex-col items-center gap-4">
-                        <Vote
-                            @votes="(value, type, id) => votes(value, type, id)"
-                            :userVote="answer.user_vote?.value"
-                            :id="answer.id"
-                            type="answer"
-                            :upvotesCount="answer.upvotes_count"
-                            :downvotesCount="answer.downvotes_count"
-                        />
-                    </div>
+            <Answer :answers="answers.data" />
 
-                    <!-- Answer Body -->
-                    <div class="flex-1 space-y-4">
-                        <div
-                            class="prose prose-zinc dark:prose-invert prose-p:text-zinc-700 dark:prose-p:text-zinc-300 prose-code:text-sky-600 dark:prose-code:text-sky-400 max-w-none"
-                        >
-                            <p class="text-zinc-700 dark:text-zinc-300">
-                                {{ answer.body }}
-                            </p>
-                        </div>
-
-                        <!-- Answer Actions -->
-                        <div
-                            class="flex flex-wrap items-center justify-between gap-4 border-t border-zinc-200 pt-4 dark:border-zinc-800"
-                        >
-                            <div class="flex flex-wrap items-center gap-4">
-                                <button
-                                    class="cursor-pointer text-sm transition hover:text-sky-600 dark:hover:text-sky-400"
-                                    @click="like('answer', answer.id)"
-                                    :class="
-                                        answer.likedUser
-                                            ? 'text-sky-600 dark:text-sky-400'
-                                            : 'text-zinc-600 dark:text-zinc-400'
-                                    "
-                                >
-                                    {{
-                                        answer.likes_count == 0
-                                            ? ''
-                                            : answer.likes_count
-                                    }}
-                                    Like
-                                </button>
-                                <button
-                                    v-if="answer.authorized"
-                                    class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
-                                >
-                                    Reply
-                                </button>
-                                <button
-                                    class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
-                                >
-                                    Share
-                                </button>
-                            </div>
-
-                            <!-- Author Info -->
-                            <div
-                                class="rounded-lg bg-sky-50/50 px-4 py-3 dark:bg-sky-500/5"
-                            >
-                                <p
-                                    class="text-xs text-zinc-500 dark:text-zinc-400"
-                                >
-                                    answered
-                                    <span
-                                        class="font-semibold text-zinc-700 dark:text-zinc-300"
-                                    >
-                                        {{ formatTime(answer.created_at) }}
-                                    </span>
-                                </p>
-                                <div class="mt-2 flex items-center gap-2">
-                                    <span
-                                        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-xs font-bold text-white"
-                                    >
-                                        {{
-                                            answer.author?.name
-                                                .slice(0, 2)
-                                                .toUpperCase()
-                                        }}
-                                    </span>
-                                    <div>
-                                        <p
-                                            class="text-sm font-semibold text-zinc-900 dark:text-zinc-50"
-                                        >
-                                            {{
-                                                answer.author?.name ||
-                                                'Anonymous'
-                                            }}
-                                        </p>
-                                        <p
-                                            class="text-xs text-zinc-500 dark:text-zinc-400"
-                                        >
-                                            5,678 reputation
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <p
-                            class="text-sm text-zinc-600 dark:text-zinc-400"
-                            v-if="
-                                answer.replies_count === 1 &&
-                                answer.latest_reply
-                            "
-                            @click="showReply(answer.latest_reply.id)"
-                        >
-                            {{ answer.latest_reply.author.name }} replied to
-                            {{ answer.author.name }}
-                        </p>
-                        <p
-                            class="text-sm text-zinc-600 dark:text-zinc-400"
-                            v-if="answer.replies_count > 1"
-                            @click="showReplies(answer.id)"
-                        >
-                            View all {{ answer.replies_count }} replies
-                        </p>
-                    </div>
-                </div>
-            </div>
             <div
                 class="mt-4 flex justify-end"
                 v-if="answers.total > answers.data.length"

@@ -32,7 +32,7 @@ class QuestionService
     }
     public function getQuestionDetails($question){
             return [
-                'question' => $question->loadCount('upvotes','downvotes','likes'),
+                'question' => $question->loadCount('upvotes','downvotes','likes','answers'),
                 'isBookmarked' => auth()->check() && $question->savedUsers()->where('user_id',Auth::id())->exists(),
                 'isLiked' => auth()->check() && $question->likes()->where('user_id',Auth::id())->exists(),
                 'userVote' => $question->votes()->where("user_id",Auth::id())->first()?->value,

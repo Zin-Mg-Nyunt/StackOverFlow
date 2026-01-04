@@ -51,6 +51,7 @@ class Answer extends Model
     }
     // latest reply from many replies
     public function latestReply(){
-        return $this->replies()->latestOfMany();
+        return $this->hasOne(Answer::class, "parent_id")
+                    ->latestOfMany();
     } 
 }

@@ -25,4 +25,6 @@ Route::post('/questions/{question}/answer/store',[AnswerController::class, 'stor
 
 Route::get('/users/{user}/profile',[UserController::class, 'show'])->name('user.profile');
 
+Route::get('/answers/{answer}/replies',[AnswerController::class, 'replies'])->name('answer.replies');
+
 require __DIR__.'/settings.php';

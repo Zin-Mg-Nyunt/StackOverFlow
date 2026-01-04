@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Answer;
 use Illuminate\Support\Facades\Auth;
 
 class AnswerService{
@@ -20,12 +19,13 @@ class AnswerService{
                     ->through(fn($a)=> $this->formatAnswer($a))
                     ->withQueryString();
     }
-    public function getReplies(Answer $answer){
+    public function getReplies($answer){
         return $answer->replies()
                     ->with('userVote','parent','latestReply') // get parent answer and latest reply with author and user vote
                     ->withCount([
                         'upvotes','downvotes','likes','replies',
                         'likes as isLiked'=>fn($a)=> $a->where('user_id',Auth::id())])
+                    ->oldest()
                     ->paginate(10)
                     ->through(fn($a)=> $this->formatAnswer($a))
                     ->withQueryString();

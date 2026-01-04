@@ -1,4 +1,8 @@
 <script setup>
+import { router } from '@inertiajs/vue3';
+import { inject } from 'vue';
+
+let route = inject('route');
 const { userVote, id } = defineProps({
     userVote: String,
     id: Number,
@@ -6,7 +10,17 @@ const { userVote, id } = defineProps({
     upvotesCount: Number,
     downvotesCount: Number,
 });
-const emit = defineEmits(['votes']);
+
+const votes = (value, votable_type, votable_id) => {
+    let data = {
+        votable_type,
+        votable_id,
+        value,
+    };
+    router.post(route('vote.store'), data, {
+        preserveScroll: true,
+    });
+};
 </script>
 <template>
     <button
@@ -16,7 +30,7 @@ const emit = defineEmits(['votes']);
                 ? 'bg-sky-200 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400'
                 : 'bg-zinc-50 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
         "
-        @click="emit('votes', 'upvote', type, id)"
+        @click="votes('upvote', type, id)"
     >
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +90,7 @@ const emit = defineEmits(['votes']);
                 ? 'bg-sky-200 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400'
                 : 'bg-zinc-50 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
         "
-        @click="emit('votes', 'downvote', type, id)"
+        @click="votes('downvote', type, id)"
     >
         <svg
             xmlns="http://www.w3.org/2000/svg"

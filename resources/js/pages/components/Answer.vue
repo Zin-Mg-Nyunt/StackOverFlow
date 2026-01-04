@@ -1,10 +1,14 @@
 <script setup>
 import formatTime from '@/composables/formatDate';
 import useLike from '@/composables/useLike.js';
+import useReply from '@/composables/useReply';
 import Vote from '../components/Vote.vue';
+import Reply from './Reply.vue';
 
-const { answers } = defineProps({ answers: Object });
+const { answers } = defineProps({ answers: Array });
+
 let { like, processing } = useLike();
+let { loadReply, replies } = useReply();
 </script>
 <template>
     <div
@@ -51,10 +55,9 @@ let { like, processing } = useLike();
                         >
                             {{
                                 answer.likes_count == 0
-                                    ? ''
-                                    : answer.likes_count
+                                    ? 'Like'
+                                    : `${answer.likes_count} Like${answer.likes_count > 1 ? 's' : ''}`
                             }}
-                            Like
                         </button>
                         <button
                             v-if="answer.authorized"
@@ -66,11 +69,6 @@ let { like, processing } = useLike();
                             class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
                         >
                             Reply
-                        </button>
-                        <button
-                            class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
-                        >
-                            Share
                         </button>
                     </div>
 
@@ -111,24 +109,38 @@ let { like, processing } = useLike();
                         </div>
                     </div>
                 </div>
+
+                <!-- to show reply section -->
                 <div class="flex items-center gap-2">
-                    <span
-                        class="flex cursor-pointer items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400"
-                        v-if="answer.replies_count === 1 && answer.latest_reply"
-                        @click="showReply(answer.latest_reply.id)"
-                    >
-                        {{ answer.latest_reply.author.name }}
-                        replied
-                        <span class="h-1 w-1 rounded-full bg-zinc-600"></span>
-                        {{ answer.replies_count }} Reply
-                    </span>
-                    <span
-                        class="text-sm text-zinc-600 dark:text-zinc-400"
-                        v-if="answer.replies_count > 1"
-                        @click="showReplies(answer.id)"
-                    >
-                        View all {{ answer.replies_count }} replies
-                    </span>
+                    <!-- before taking replies -->
+                    <template v-if="!replies[answer.id]">
+                        <span
+                            class="flex cursor-pointer items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400"
+                            v-if="
+                                answer.total_replies_count === 1 &&
+                                answer.latest_reply
+                            "
+                            @click="loadReply(answer.id)"
+                        >
+                            {{ answer.latest_reply.author.name }}
+                            replied
+                            <span
+                                class="h-1 w-1 rounded-full bg-zinc-600"
+                            ></span>
+                            {{ answer.total_replies_count }} Reply
+                        </span>
+                        <span
+                            class="cursor-pointer text-sm text-zinc-600 dark:text-zinc-400"
+                            v-if="answer.total_replies_count > 1"
+                            @click="loadReply(answer.id)"
+                        >
+                            View all {{ answer.total_replies_count }} replies
+                        </span>
+                    </template>
+                    <!-- after taking replies -->
+                    <div v-else>
+                        <Reply :answerReplies="replies[answer.id].data" />
+                    </div>
                 </div>
             </div>
         </div>

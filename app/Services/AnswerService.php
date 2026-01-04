@@ -12,7 +12,7 @@ class AnswerService{
                     ->whereNull('parent_id') // get only root answers
                     ->with('userVote','latestReply') // get latest reply with author and user vote
                     ->withCount([
-                        'upvotes','downvotes','likes','replies',
+                        'upvotes','downvotes','likes',
                         'likes as isLiked'=>fn($a)=> $a->where('user_id',Auth::id())])
                     ->when(request('sort') === 'latest', function($query){$query->latest();})
                     ->paginate(3)
@@ -23,7 +23,7 @@ class AnswerService{
         return $answer->replies()
                     ->with('userVote','parent','latestReply') // get parent answer and latest reply with author and user vote
                     ->withCount([
-                        'upvotes','downvotes','likes','replies',
+                        'upvotes','downvotes','likes',
                         'likes as isLiked'=>fn($a)=> $a->where('user_id',Auth::id())])
                     ->oldest()
                     ->paginate(10)

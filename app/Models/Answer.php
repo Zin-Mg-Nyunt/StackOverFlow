@@ -13,6 +13,39 @@ class Answer extends Model
     protected $guarded = ['id'];
     protected $with = ['author'];
 
+    // framework's method. This is auto running in backend when a class was created. We use this because we want add some custom logic in this state
+    protected static function boot()
+    {
+        parent::boot(); 
+
+        // custom logic
+        static::created(function($answer){ // this run when an answer was created
+            if ($answer->parent_id) {
+                $answer->incrementParentCount();
+            }
+        });
+
+        static::deleted(function($answer){ // this run when an answer was deleted
+            if($answer->parent_id){
+                $answer->decrementParentCount();
+            }
+        });
+    }
+    public function incrementParentCount(){
+        $parent=$this->parent; // call parent answer (father state)
+        if($parent){ // check parent has or not
+            $parent->increment("total_replies_count");
+            $parent->incrementParentCount(); // making recursive method and cause grandfather state and up till to root answer
+        }
+    }
+    public function decrementParentCount(){
+        $parent=$this->parent; // call parent answer (father state)
+        if($parent){ // check parent has or not
+            $parent->decrement("total_replies_count");
+            $parent->decrementParentCount(); // making recursive method and cause grandfather state and up till to root answer
+        }
+    }
+
     public function question(){
         return $this->belongsTo(Question::class, 'question_id');
     }

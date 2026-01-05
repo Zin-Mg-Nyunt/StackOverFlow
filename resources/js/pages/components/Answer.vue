@@ -46,7 +46,7 @@ let { loadReply, replies } = useReply();
                     <div class="flex flex-wrap items-center gap-4">
                         <button
                             class="cursor-pointer text-sm transition hover:text-sky-600 dark:hover:text-sky-400"
-                            @click="like('answer', answer.id)"
+                            @click="like('answer', answer.id, answer)"
                             :class="
                                 answer.likedUser
                                     ? 'text-sky-600 dark:text-sky-400'

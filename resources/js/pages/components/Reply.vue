@@ -54,7 +54,7 @@ const { loadReply, replies } = useReply();
                             >
                                 <button
                                     class="cursor-pointer text-sm transition hover:text-sky-600 dark:hover:text-sky-400"
-                                    @click="like('answer', reply.id)"
+                                    @click="like('answer', reply.id, reply)"
                                     :disabled="processing"
                                     :class="
                                         reply.likedUser

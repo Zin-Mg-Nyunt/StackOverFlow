@@ -16,7 +16,10 @@ class LikeController extends Controller
         ]);
         $modelClass=$data['likeable_type'] === 'question' ? Question::class : Answer::class;
         $model=$modelClass::findOrFail($data['likeable_id']);
-        $model->likes()->toggle(Auth::id());
-        return back();
+        $response=$model->likes()->toggle(Auth::id());
+        return response()->json([
+            'isLiked'=>count($response['attached']) > 0,
+            'likes_count'=>$model->likes()->count()
+        ]);
     }
 }

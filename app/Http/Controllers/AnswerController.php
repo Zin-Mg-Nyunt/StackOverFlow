@@ -6,6 +6,7 @@ use App\Models\Answer;
 use App\Models\Question;
 use App\Services\AnswerService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AnswerController extends Controller
 {
@@ -13,8 +14,10 @@ class AnswerController extends Controller
         $newAnswer=request()->validate([
             "body" => "required",
         ]);
-        $newAnswer["user_id"] = $request->user()->id;
-        $question->answers()->create($newAnswer);
+        DB::transaction(function() use($request,$question,$newAnswer){
+            $newAnswer["user_id"] = $request->user()->id;
+            $question->answers()->create($newAnswer);
+        });
     }
     public function replies(Answer $answer,AnswerService $answerService){
         $replies=$answerService->getReplies($answer);

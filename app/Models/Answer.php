@@ -70,9 +70,6 @@ class Answer extends Model
         return $this->morphOne(Vote::class, "votable")
                     ->where('user_id',Auth::id());
     }
-    public function likedUser(){
-        return $this->likes()->where('user_id',Auth::id());
-    }
 
     // parent answer (one to one) self-referencing relationship
     public function parent(){

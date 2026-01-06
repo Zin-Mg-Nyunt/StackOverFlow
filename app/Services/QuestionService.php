@@ -31,13 +31,15 @@ class QuestionService
                         ->withQueryString();
     }
     public function getQuestionDetails($question){
-            return [
-                'question' => $question->loadCount('upvotes','downvotes','likes','answers'),
-                'isBookmarked' => auth()->check() && $question->savedUsers()->where('user_id',Auth::id())->exists(),
-                'isLiked' => auth()->check() && $question->likes()->where('user_id',Auth::id())->exists(),
-                'userVote' => $question->votes()->where("user_id",Auth::id())->first()?->value,
-                'relatedQuestions' => $this->getRelatedQuestions($question)
-            ];
+        
+        $question->loadCount('upvotes','downvotes','likes','answers');
+        // add custom attribute in question model object
+        $question->setAttribute('isBookmarked',auth()->check() && $question->savedUsers()->where('user_id',Auth::id())->exists());
+        $question->setAttribute('isLiked',auth()->check() && $question->likes()->where('user_id',Auth::id())->exists());
+        $question->setAttribute('userVote',$question->votes()->where("user_id",Auth::id())->first()?->value);
+        $question->setAttribute('relatedQuestions',$this->getRelatedQuestions($question));
+        
+        return $question;
     }
     public function createQuestion($data){
         return DB::transaction(function() use($data){

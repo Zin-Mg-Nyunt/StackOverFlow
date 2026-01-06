@@ -3,9 +3,9 @@ import formatTime from '@/composables/formatDate';
 import useLike from '@/composables/useLike.js';
 import useReply from '@/composables/useReply.js';
 
-const { answerReplies } = defineProps({
-    answerReplies: {
-        type: Array,
+const { reply } = defineProps({
+    reply: {
+        type: Object,
         required: true,
     },
 });
@@ -15,7 +15,7 @@ const { loadReply, replies } = useReply();
 </script>
 
 <template>
-    <div v-for="reply in answerReplies" :key="reply.id">
+    <div>
         <div class="border-l-2 border-zinc-200 py-3 pl-4 dark:border-zinc-700">
             <div class="flex items-start gap-3">
                 <!-- Author Info -->
@@ -57,7 +57,7 @@ const { loadReply, replies } = useReply();
                                     @click="like('answer', reply.id, reply)"
                                     :disabled="processing"
                                     :class="
-                                        reply.likedUser
+                                        reply.isLiked
                                             ? 'text-sky-600 dark:text-sky-400'
                                             : 'text-zinc-600 dark:text-zinc-400'
                                     "
@@ -82,7 +82,7 @@ const { loadReply, replies } = useReply();
             <!-- to show reply section -->
             <div class="flex items-center gap-2">
                 <!-- before taking replies -->
-                <template v-if="!replies[reply.id]">
+                <template v-if="!replies">
                     <span
                         class="flex cursor-pointer items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400"
                         v-if="
@@ -106,7 +106,11 @@ const { loadReply, replies } = useReply();
                 </template>
                 <!-- after taking replies -->
                 <div v-else>
-                    <Reply :answerReplies="replies[reply.id].data" />
+                    <Reply
+                        v-for="reply in replies.data"
+                        :key="reply.id"
+                        :reply="reply"
+                    />
                 </div>
             </div>
         </div>

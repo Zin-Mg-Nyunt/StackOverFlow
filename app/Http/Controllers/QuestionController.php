@@ -20,7 +20,7 @@ class QuestionController extends Controller
     }
     public function show(Question $question, QuestionService $questionService, AnswerService $answerService){
         return inertia('Questions/Detail',[
-            ...$questionService->getQuestionDetails($question),
+            'question' => $questionService->getQuestionDetails($question),
             'answers' => $answerService->getAnswers($question),
             'sort' => request('sort'),
         ]);

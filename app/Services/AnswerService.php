@@ -21,7 +21,7 @@ class AnswerService{
     }
     public function getReplies($answer){
         return $answer->replies()
-                    ->with('userVote','parent','latestReply') // get parent answer and latest reply with author and user vote
+                    ->with('userVote','latestReply') // get latest reply with author and user vote
                     ->withCount([
                         'upvotes','downvotes','likes',
                         'likes as isLiked'=>fn($a)=> $a->where('user_id',Auth::id())])
@@ -32,7 +32,7 @@ class AnswerService{
     }
     protected function formatAnswer($a){
         $a->authorized = $a->user_id === Auth::id();
-        $a->likedUser = $a->isLiked > 0;
+        $a->isLiked = $a->isLiked > 0;
         return $a;
     }
 }

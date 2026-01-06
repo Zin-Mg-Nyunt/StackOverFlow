@@ -5,15 +5,20 @@ import useReply from '@/composables/useReply';
 import Vote from '../components/Vote.vue';
 import Reply from './Reply.vue';
 
-const { answers } = defineProps({ answers: Array });
-
+const { answer } = defineProps({ answer: Object });
 let { like, processing } = useLike();
-let { loadReply, replies } = useReply();
+let {
+    loadReply,
+    handleReply,
+    replies,
+    isReplying,
+    replyBody,
+    submitting,
+    isLoaded,
+} = useReply();
 </script>
 <template>
     <div
-        v-for="answer in answers"
-        :key="answer.id"
         :id="'answer-' + answer.id"
         class="rounded-2xl border border-zinc-200 bg-white/90 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80"
     >
@@ -41,40 +46,118 @@ let { loadReply, replies } = useReply();
 
                 <!-- Answer Actions -->
                 <div
-                    class="flex flex-wrap items-center justify-between gap-4 border-t border-zinc-200 pt-4 dark:border-zinc-800"
+                    class="flex items-start justify-between gap-4 border-t border-zinc-200 pt-4 dark:border-zinc-800"
                 >
-                    <div class="flex flex-wrap items-center gap-4">
-                        <button
-                            class="cursor-pointer text-sm transition hover:text-sky-600 dark:hover:text-sky-400"
-                            @click="like('answer', answer.id, answer)"
-                            :class="
-                                answer.likedUser
-                                    ? 'text-sky-600 dark:text-sky-400'
-                                    : 'text-zinc-600 dark:text-zinc-400'
-                            "
-                        >
-                            {{
-                                answer.likes_count == 0
-                                    ? 'Like'
-                                    : `${answer.likes_count} Like${answer.likes_count > 1 ? 's' : ''}`
-                            }}
-                        </button>
-                        <button
-                            v-if="answer.authorized"
-                            class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
-                        >
-                            Edit
-                        </button>
-                        <button
-                            class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
-                        >
-                            Reply
-                        </button>
+                    <div class="w-full">
+                        <div class="flex flex-wrap items-center gap-4">
+                            <button
+                                class="cursor-pointer text-sm transition hover:text-sky-600 dark:hover:text-sky-400"
+                                @click="like('answer', answer.id, answer)"
+                                :class="
+                                    answer.isLiked
+                                        ? 'text-sky-600 dark:text-sky-400'
+                                        : 'text-zinc-600 dark:text-zinc-400'
+                                "
+                            >
+                                {{
+                                    answer.likes_count == 0
+                                        ? 'Like'
+                                        : `${answer.likes_count} Like${answer.likes_count > 1 ? 's' : ''}`
+                                }}
+                            </button>
+                            <button
+                                v-if="answer.authorized"
+                                class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
+                            >
+                                Edit
+                            </button>
+                            <button
+                                class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
+                                @click="isReplying = !isReplying"
+                            >
+                                Reply
+                            </button>
+                        </div>
+
+                        <!-- to show reply section -->
+                        <div class="mt-4 flex flex-col gap-2">
+                            <!-- before taking replies -->
+                            <!-- if replies doesn't load -->
+                            <template v-if="!isLoaded">
+                                <span
+                                    class="flex cursor-pointer items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400"
+                                    v-if="
+                                        answer.total_replies_count === 1 &&
+                                        answer.latest_reply
+                                    "
+                                    @click="loadReply(answer.id)"
+                                >
+                                    {{ answer.latest_reply.author.name }}
+                                    replied
+                                    <span
+                                        class="h-1 w-1 rounded-full bg-zinc-600"
+                                    ></span>
+                                    {{ answer.total_replies_count }} Reply
+                                </span>
+                                <span
+                                    class="cursor-pointer text-sm text-zinc-600 dark:text-zinc-400"
+                                    v-if="answer.total_replies_count > 1"
+                                    @click="loadReply(answer.id)"
+                                >
+                                    View all
+                                    {{ answer.total_replies_count }} replies
+                                </span>
+                            </template>
+                            <!-- after taking replies -->
+                            <!-- after loaded, the replies has data -->
+                            <div v-if="replies.data.length > 0">
+                                <Reply
+                                    v-for="reply in replies.data"
+                                    :key="reply.id"
+                                    :reply="reply"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- reply input box -->
+                        <div v-if="isReplying" class="mt-4">
+                            <textarea
+                                v-model="replyBody"
+                                placeholder="Write your reply..."
+                                rows="3"
+                                class="w-full rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-900 shadow-sm transition focus:border-sky-400 focus:bg-white focus:outline-none dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-400 dark:focus:bg-zinc-900"
+                                :disabled="submitting"
+                            ></textarea>
+                            <div class="flex justify-end gap-2">
+                                <button
+                                    type="button"
+                                    class="rounded-md px-4 py-1.5 text-xs font-medium text-zinc-600 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                                    @click="isReplying = false"
+                                    :disabled="submitting"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    class="rounded-md bg-sky-600 px-4 py-1.5 text-xs font-semibold text-white shadow transition hover:bg-sky-700 dark:bg-sky-500 dark:hover:bg-sky-600"
+                                    :disabled="submitting || !replyBody.trim()"
+                                    @click="
+                                        handleReply(
+                                            answer.id,
+                                            answer.question_id,
+                                        )
+                                    "
+                                >
+                                    <span v-if="submitting">Posting...</span>
+                                    <span v-else>Post Reply</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Author Info -->
                     <div
-                        class="rounded-lg bg-sky-50/50 px-4 py-3 dark:bg-sky-500/5"
+                        class="shrink-0 rounded-lg bg-sky-50/50 px-4 py-3 dark:bg-sky-500/5"
                     >
                         <p class="text-xs text-zinc-500 dark:text-zinc-400">
                             answered
@@ -107,39 +190,6 @@ let { loadReply, replies } = useReply();
                                 </p>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- to show reply section -->
-                <div class="flex items-center gap-2">
-                    <!-- before taking replies -->
-                    <template v-if="!replies[answer.id]">
-                        <span
-                            class="flex cursor-pointer items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400"
-                            v-if="
-                                answer.total_replies_count === 1 &&
-                                answer.latest_reply
-                            "
-                            @click="loadReply(answer.id)"
-                        >
-                            {{ answer.latest_reply.author.name }}
-                            replied
-                            <span
-                                class="h-1 w-1 rounded-full bg-zinc-600"
-                            ></span>
-                            {{ answer.total_replies_count }} Reply
-                        </span>
-                        <span
-                            class="cursor-pointer text-sm text-zinc-600 dark:text-zinc-400"
-                            v-if="answer.total_replies_count > 1"
-                            @click="loadReply(answer.id)"
-                        >
-                            View all {{ answer.total_replies_count }} replies
-                        </span>
-                    </template>
-                    <!-- after taking replies -->
-                    <div v-else>
-                        <Reply :answerReplies="replies[answer.id].data" />
                     </div>
                 </div>
             </div>

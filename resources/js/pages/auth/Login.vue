@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import AuthBase from '@/layouts/AuthLayout.vue';
-import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
@@ -20,6 +19,10 @@ defineProps<{
     canResetPassword: boolean;
     canRegister: boolean;
 }>();
+// URL က redirect parameter ကို ဖတ်ထားမယ်
+const redirectPath = new URLSearchParams(window.location.search).get(
+    'redirect',
+);
 </script>
 
 <template>
@@ -42,6 +45,12 @@ defineProps<{
             v-slot="{ errors, processing }"
             class="flex flex-col gap-6"
         >
+            <input
+                v-if="redirectPath"
+                type="hidden"
+                name="redirect"
+                :value="redirectPath"
+            />
             <div class="grid gap-6">
                 <div class="grid gap-2">
                     <Label for="email">Email address</Label>
@@ -106,7 +115,12 @@ defineProps<{
                 v-if="canRegister"
             >
                 Don't have an account?
-                <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
+                <TextLink
+                    :href="route('register', { redirect: redirectPath })"
+                    :tabindex="5"
+                >
+                    Sign up
+                </TextLink>
             </div>
         </Form>
     </AuthBase>

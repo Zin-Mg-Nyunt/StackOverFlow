@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
+use Laravel\Fortify\Http\Responses\LoginResponse; 
+use Laravel\Fortify\Http\Responses\RegisterResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -31,6 +33,40 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();
+
+        $this->app->singleton(
+            \Laravel\Fortify\Contracts\LoginResponse::class,
+            fn() => new class implements \Laravel\Fortify\Contracts\LoginResponse {
+                public function toResponse($request) {
+                    // URL မှာ ?redirect=... ပါလာရင် အဲ့ဒီနေရာကို သွားမယ်
+                    $redirectUrl = $request->get('redirect');
+
+                    if ($redirectUrl) {
+                        return redirect($redirectUrl);
+                    }
+
+                    // မပါရင်တော့ ပုံမှန်အတိုင်း intended သုံးမယ်
+                    return redirect()->intended('/');
+                }
+            }
+        );
+    
+        $this->app->singleton(
+            \Laravel\Fortify\Contracts\RegisterResponse::class,
+            fn() => new class implements \Laravel\Fortify\Contracts\RegisterResponse {
+                public function toResponse($request) {
+                    // URL မှာ ?redirect=... ပါလာရင် အဲ့ဒီနေရာကို သွားမယ်
+                    $redirectUrl = $request->get('redirect');
+
+                    if ($redirectUrl) {
+                        return redirect($redirectUrl);
+                    }
+
+                    // မပါရင်တော့ ပုံမှန်အတိုင်း intended သုံးမယ်
+                    return redirect()->intended('/');
+                }
+            }
+        );
     }
 
     /**

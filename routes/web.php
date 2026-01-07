@@ -8,10 +8,11 @@ use App\Http\Controllers\VoteController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('loginUser')->group(function(){
-    Route::get('/questions/ask',[QuestionController::class, 'create'])->name('questions.create');
-    Route::post('/questions/{question:slug}/save',[QuestionController::class, 'save'])->name('question.save');
-    Route::post('/vote',[VoteController::class, 'toggle'])->name('vote.store');
-    Route::post('/like',[LikeController::class, 'toggle'])->name('like.toggle');
+    Route::get('/questions/ask',[QuestionController::class, 'create'])->name('questions.create'); 
+    Route::post('/questions/{question:slug}/save',[QuestionController::class, 'save'])->name('question.save'); // via router
+    Route::post('/vote',[VoteController::class, 'toggle'])->name('vote.store'); // via router
+    Route::post('/like',[LikeController::class, 'toggle'])->name('like.toggle'); // via axios
+    Route::post('/questions/{question}/answer/store',[AnswerController::class, 'store'])->name('answer.store'); // via axios
 });
 
 Route::get('/', [QuestionController::class, 'index'])->name('home');
@@ -21,7 +22,6 @@ Route::get('/questions/{question:slug}/edit',[QuestionController::class, 'edit']
 Route::put('/questions/{question:slug}/update',[QuestionController::class, 'update'])->name('question.update');
 Route::delete('/questions/{question}/delete',[QuestionController::class, 'destroy'])->name('question.delete');
 
-Route::post('/questions/{question}/answer/store',[AnswerController::class, 'store'])->name('answer.store');
 
 Route::get('/users/{user}/profile',[UserController::class, 'show'])->name('user.profile');
 

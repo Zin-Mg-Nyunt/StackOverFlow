@@ -1,6 +1,7 @@
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/vue3';
+import axios from 'axios';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
@@ -27,6 +28,22 @@ createInertiaApp({
         color: '#4B5563',
     },
 });
+
+// Axios Interceptor ကို setup လုပ်ခြင်း
+axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        // အကယ်၍ Backend က Middleware ကနေ 401 (Unauthorized) ပြန်လာရင်
+        if (error.response && error.response.status === 401) {
+            const currentUrl = window.location.href;
+            const loginPath = '/login';
+
+            // Login page ကို redirect parameter နဲ့အတူ လွှတ်လိုက်မယ်
+            window.location.href = `${loginPath}?redirect=${currentUrl}`;
+        }
+        return Promise.reject(error);
+    },
+);
 
 // This will set light / dark mode on page load...
 initializeTheme();

@@ -1,5 +1,6 @@
 <script setup>
 import formatTime from '@/composables/formatDate';
+import { titleCase } from '@/composables/titleCase';
 import useLike from '@/composables/useLike.js';
 import useReply from '@/composables/useReply';
 import Vote from '../components/Vote.vue';
@@ -181,7 +182,10 @@ let {
                                 <p
                                     class="text-sm font-semibold text-zinc-900 dark:text-zinc-50"
                                 >
-                                    {{ answer.author?.name || 'Anonymous' }}
+                                    {{
+                                        titleCase(answer.author?.name) ||
+                                        'Anonymous'
+                                    }}
                                 </p>
                                 <p
                                     class="text-xs text-zinc-500 dark:text-zinc-400"

@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\AnswerController;
+use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\OtpVerifyController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoteController;
 use Illuminate\Support\Facades\Route;
@@ -26,5 +29,13 @@ Route::delete('/questions/{question}/delete',[QuestionController::class, 'destro
 Route::get('/users/{user}/profile',[UserController::class, 'show'])->name('user.profile');
 
 Route::get('/answers/{answer}/replies',[AnswerController::class, 'replies'])->name('answer.replies');
+
+// overwrite route to fortify controller
+Route::get('/forgot-password',[ForgotPasswordController::class,'create'])->name('password.request');
+Route::post('/forgot-password',[ForgotPasswordController::class,'store'])->name('password.email');
+Route::post('/forgot-password/changeEmail',[ForgotPasswordController::class,'change'])->name('password.changeEmail');
+Route::post('otp-verify',[OtpVerifyController::class,'verify'])->name('otp.verify');
+Route::get('reset-password/{token}',[ResetPasswordController::class,'create'])->name('password.reset');
+Route::post('reset-password',[ResetPasswordController::class,'store'])->name('password.update');
 
 require __DIR__.'/settings.php';

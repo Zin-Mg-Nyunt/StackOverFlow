@@ -9,8 +9,11 @@ import { update } from '@/routes/password';
 import { Form, Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
+defineOptions({
+    layout: null,
+});
 const props = defineProps<{
-    token: string;
+    otp: string;
     email: string;
 }>();
 
@@ -26,7 +29,7 @@ const inputEmail = ref(props.email);
 
         <Form
             v-bind="update.form()"
-            :transform="(data) => ({ ...data, token, email })"
+            :transform="(data) => ({ ...data, otp, email })"
             :reset-on-success="['password', 'password_confirmation']"
             v-slot="{ errors, processing }"
         >

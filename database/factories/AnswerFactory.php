@@ -17,7 +17,9 @@ class AnswerFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'body'=>fake()->sentence(),
+            'user_id'=>fake()->numberBetween(1,5),
+            'question_id'=>fake()->numberBetween(1,25),
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Answer;
 use App\Models\Question;
 use App\Models\Tag;
 use App\Models\User;
@@ -46,13 +47,22 @@ class DatabaseSeeder extends Seeder
                 "slug"=>$tag['slug']
             ]);
         }
-        User::factory(5)
-            ->has(Question::factory()->count(5))
-            ->create()
-            ->each(function($user){
-                $user->questions()->each(function($question){
-                    $question->tags()->attach(Tag::inRandomOrder()->take(rand(1,3))->pluck('id'));
+
+        $users=User::factory(5)->create();
+        $users->each(function($user) use($users){
+            $questions=Question::factory(5)->create(['user_id'=>$user->id]);
+            $questions->each(function($question) use($users){
+                $userIds = $users->where('id','!=',$question->user_id)->pluck('id');
+                $count = min($userIds->count(),2);
+                $userIds = $userIds->random($count);
+                $userIds->each(function($userId) use($question){
+                    Answer::factory(rand(1,2))->create([
+                        'question_id'=>$question->id,
+                        'user_id'=>$userId
+                    ]);
                 });
+                $question->tags()->attach(Tag::inRandomOrder()->take(rand(1,3))->pluck('id'));
             });
+        });
     }
 }

@@ -51,7 +51,11 @@ const formatNumber = (num) => {
                         <div
                             class="flex h-32 w-32 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 via-indigo-500 to-blue-600 text-4xl font-bold text-white shadow-lg shadow-sky-500/20"
                         >
-                            {{ profileUser.name.charAt(0).toUpperCase() }}
+                            {{
+                                profileUser.profile_path
+                                    ? profileUser.profile_path
+                                    : profileUser.name.charAt(0).toUpperCase()
+                            }}
                         </div>
                     </div>
 

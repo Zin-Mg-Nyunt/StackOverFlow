@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -27,17 +29,28 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(ProfileUpdateRequest $request, User $user): RedirectResponse
     {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $updatedData=$request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'profile_photo_path' => 'nullable|image|max:2048'
+        ]);
+        if($request->hasFile('profile_photo_path')){
+            if($user->profile_photo_path){
+                Storage::disk('public')->delete($user->getRawOriginal('profile_photo_path'));
+            }
+            $path=$request->profile_photo_path->store('profiles','public');
+            $updatedData['profile_photo_path'] = $path;
+        }else{
+            $updatedData=collect($updatedData)->except('profile_photo_path')->toArray();
+        };
+        $user->fill($updatedData);
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
-
-        $request->user()->save();
-
-        return to_route('profile.edit');
+        $user->save();
+        return back();
     }
 
     /**
@@ -59,5 +72,13 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+    
+    public function destroyPhoto(User $user){
+        if ($user->profile_photo_path) {
+            $user->profile_photo_path = null;
+            $user->save();
+        }
+        return back();
     }
 }

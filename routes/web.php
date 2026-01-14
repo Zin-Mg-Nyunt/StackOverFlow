@@ -6,6 +6,7 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\OtpVerifyController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\ResetPasswordController;
+use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoteController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,7 @@ Route::middleware('loginUser')->group(function(){
     Route::post('/vote',[VoteController::class, 'toggle'])->name('vote.store'); // via router
     Route::post('/like',[LikeController::class, 'toggle'])->name('like.toggle'); // via axios
     Route::post('/questions/{question}/answer/store',[AnswerController::class, 'store'])->name('answer.store'); // via axios
+    Route::get('/users/{user}/profile',[UserController::class, 'show'])->name('user.profile');
 });
 
 Route::get('/', [QuestionController::class, 'index'])->name('home');
@@ -26,7 +28,6 @@ Route::put('/questions/{question:slug}/update',[QuestionController::class, 'upda
 Route::delete('/questions/{question}/delete',[QuestionController::class, 'destroy'])->name('question.delete');
 
 
-Route::get('/users/{user}/profile',[UserController::class, 'show'])->name('user.profile');
 
 Route::get('/answers/{answer}/replies',[AnswerController::class, 'replies'])->name('answer.replies');
 
@@ -38,4 +39,6 @@ Route::post('otp-verify',[OtpVerifyController::class,'verify'])->name('otp.verif
 Route::get('reset-password/{token}',[ResetPasswordController::class,'create'])->name('password.reset');
 Route::post('reset-password',[ResetPasswordController::class,'store'])->name('password.update');
 
+// update profile
+Route::post('/users/{user}/profile/update',[ProfileController::class,'update'])->name('update.profile');
 require __DIR__.'/settings.php';

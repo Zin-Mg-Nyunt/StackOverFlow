@@ -11,6 +11,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable
@@ -27,6 +28,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'profile_photo_path',
     ];
 
     /**
@@ -54,32 +56,53 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
-    public function questions(){
+
+    public function questions()
+    {
         return $this->hasMany(Question::class);
     }
-    public function answers(){
+
+    public function answers()
+    {
         return $this->hasMany(Answer::class, 'user_id');
     }
-    public function savedQuestions(){
-        return $this->belongsToMany(Question::class,"question_user")
-                    ->withTimestamps();  // to sort savedQuestions by time
+
+    public function savedQuestions()
+    {
+        return $this->belongsToMany(Question::class, 'question_user')
+            ->withTimestamps();  // to sort savedQuestions by time
     }
-    public function likedQuestions(){
-        return $this->morphedByMany(Question::class,"likeable","likes","user_id","likeable_id");
+
+    public function likedQuestions()
+    {
+        return $this->morphedByMany(Question::class, 'likeable', 'likes', 'user_id', 'likeable_id');
     }
-    public function generateOtpAndSend(){
-        $otp = rand(100000,999999);
-        DB::transaction(function() use($otp){
+
+    public function generateOtpAndSend()
+    {
+        $otp = rand(100000, 999999);
+        DB::transaction(function () use ($otp) {
             DB::table('password_reset_tokens')->updateOrInsert(
-                ['email'=>$this->email],
+                ['email' => $this->email],
                 [
-                    'token'=> Hash::make($otp),
-                'created_at'=> now()
+                    'token' => Hash::make($otp),
+                    'created_at' => now(),
                 ]
             );
         });
         Mail::to($this->email)->queue(new OtpMail($otp));
         $expire_at = now()->addSeconds(180)->timestamp;
+
         return $expire_at;
+    }
+
+    /**
+     * Get the URL to the user's profile photo.
+     */
+    public function getProfilePhotoPathAttribute($value): ?string
+    {
+        return $value
+            ? asset('storage/'.$value)
+            : null;
     }
 }

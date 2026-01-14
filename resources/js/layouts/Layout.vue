@@ -131,9 +131,19 @@ const popularTags = computed(() => {
                             :href="
                                 route('user.profile', $page.props.auth.user.id)
                             "
-                            class="flex cursor-pointer items-center gap-2 rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-800 uppercase dark:bg-zinc-800 dark:text-zinc-100"
                         >
-                            {{ $page.props.auth.user.name.charAt() }}
+                            <img
+                                v-if="$page.props.auth.user.profile_photo_path"
+                                :src="$page.props.auth.user.profile_photo_path"
+                                alt=""
+                                class="h-8 w-8 rounded-full"
+                            />
+                            <span
+                                v-else
+                                class="flex cursor-pointer items-center gap-2 rounded-full bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-800 uppercase dark:bg-zinc-800 dark:text-zinc-100"
+                            >
+                                {{ $page.props.auth.user.name.charAt() }}
+                            </span>
                         </Link>
                         <form @submit.prevent="logout" class="inline">
                             <button

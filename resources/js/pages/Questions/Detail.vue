@@ -164,7 +164,7 @@ const questionSave = () => {
                     <div class="flex flex-col items-center gap-1">
                         <button
                             class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-zinc-200 text-zinc-400 transition hover:border-sky-400 hover:bg-sky-50 hover:text-sky-500 dark:border-zinc-700 dark:hover:border-sky-500 dark:hover:bg-sky-500/10 dark:hover:text-sky-500"
-                            title="Share"
+                            title="Like"
                             :disabled="processing"
                             @click="like('question', question.id, question)"
                             :class="[

@@ -25,6 +25,14 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'profile_photo_path' => ['nullable', 'image', 'max:2048'],
+        ];
+    }
+    public function messages(): array
+    {
+        return [
+            'profile_photo_path.image' => 'ဓာတ်ပုံဖိုင်များသာ တင်ပေးပါ။',
+            'profile_photo_path.max' => 'ပုံအရွယ်အစားသည် 2MB ထက် မကျော်ရပါ။'
         ];
     }
 }

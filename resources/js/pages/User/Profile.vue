@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { inject, ref } from 'vue';
 import formatTime from '../../composables/formatDate';
 import Pagination from '../components/Pagination.vue';
@@ -10,10 +10,13 @@ const { profileUser, stats, questions, answers, savedQuestions } = defineProps({
     profileUser: Object,
     stats: Object,
     questions: Array,
-    savedQuestions: Array,
+    savedQuestions: Object,
     answers: Object,
 });
+
 let questionOrAnswer = ref(page.props.state ?? 'q');
+const showModal = ref(false);
+
 const stateValue = (value) => {
     questionOrAnswer.value = value;
     router.get(route('user.profile', profileUser.id), {
@@ -29,6 +32,64 @@ const formatNumber = (num) => {
         return (num / 1000).toFixed(1) + 'k';
     }
     return num.toString();
+};
+
+// Profile update form
+const profileForm = useForm({
+    name: profileUser.name,
+    email: profileUser.email,
+    profile_photo_path: profileUser.profile_photo_path
+        ? profileUser.profile_photo_path
+        : null,
+});
+// image preview
+let imagePreview = ref(profileUser.profile_photo_path);
+let file = ref(null);
+const previewImage = (e) => {
+    file.value = e.target.files[0];
+    if (file.value) {
+        profileForm.profile_photo_path = file.value;
+        imagePreview.value = URL.createObjectURL(file.value);
+    }
+};
+
+const deleteProfilePhoto = () => {
+    profileForm.profile_photo_path = null;
+};
+
+const updateProfile = () => {
+    profileForm.post(route('update.profile', profileUser.id), {
+        preserveScroll: true,
+        onSuccess: () => {
+            showModal.value = false;
+            file.value = null;
+            profileForm.reset();
+        },
+    });
+};
+
+// Password update form
+const passwordForm = useForm({
+    current_password: '',
+    password: '',
+    password_confirmation: '',
+});
+
+const updatePassword = () => {
+    passwordForm.put(route('user-password.update'), {
+        preserveScroll: true,
+        onSuccess: () => {
+            passwordForm.reset();
+        },
+    });
+};
+
+const closeModal = () => {
+    file.value = null;
+    showModal.value = false;
+    profileForm.reset();
+    passwordForm.reset();
+    imagePreview.value = profileUser.profile_photo_path;
 };
 </script>
 
@@ -49,29 +110,59 @@ const formatNumber = (num) => {
                         class="flex items-center justify-center md:flex-shrink-0"
                     >
                         <div
-                            class="flex h-32 w-32 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 via-indigo-500 to-blue-600 text-4xl font-bold text-white shadow-lg shadow-sky-500/20"
+                            class="flex h-32 w-32 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-sky-500 via-indigo-500 to-blue-600 text-4xl font-bold text-white shadow-lg shadow-sky-500/20"
                         >
-                            {{
-                                profileUser.profile_path
-                                    ? profileUser.profile_path
-                                    : profileUser.name.charAt(0).toUpperCase()
-                            }}
+                            <img
+                                v-if="profileUser.profile_photo_path"
+                                :src="profileUser.profile_photo_path"
+                                :alt="profileUser.name"
+                                class="h-full w-full object-center"
+                            />
+                            <span v-else>{{
+                                profileUser.name.charAt(0).toUpperCase()
+                            }}</span>
                         </div>
                     </div>
 
                     <!-- User Info -->
                     <div class="flex-1 space-y-4">
-                        <div>
-                            <h1
-                                class="text-center text-3xl font-bold text-zinc-900 md:text-left dark:text-zinc-50"
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h1
+                                    class="text-center text-3xl font-bold text-zinc-900 md:text-left dark:text-zinc-50"
+                                >
+                                    {{ profileUser.name }}
+                                </h1>
+                                <p
+                                    class="mt-1 text-center text-sm text-zinc-600 md:text-left dark:text-zinc-400"
+                                >
+                                    {{ profileUser.email }}
+                                </p>
+                            </div>
+                            <button
+                                @click="showModal = true"
+                                class="group flex cursor-pointer flex-col items-center"
                             >
-                                {{ profileUser.name }}
-                            </h1>
-                            <p
-                                class="mt-1 text-center text-sm text-zinc-600 md:text-left dark:text-zinc-400"
-                            >
-                                {{ profileUser.email }}
-                            </p>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-6 w-6 text-zinc-500 transition-colors group-hover:text-zinc-900 dark:text-zinc-400 dark:group-hover:text-zinc-50"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M16.862 3.487a2.06 2.06 0 0 1 2.913 2.913l-9.54 9.54-3.244.33a1 1 0 0 1-1.098-1.098l.33-3.244 9.54-9.54z"
+                                    />
+                                </svg>
+                                <p
+                                    class="text-xs text-zinc-500 transition-colors group-hover:text-zinc-900 dark:text-zinc-400 dark:group-hover:text-zinc-50"
+                                >
+                                    Edit Profile
+                                </p>
+                            </button>
                         </div>
 
                         <!-- Stats Grid -->
@@ -419,6 +510,327 @@ const formatNumber = (num) => {
                 </article>
             </div>
         </div>
+
+        <!-- Edit Profile Modal -->
+        <Transition
+            enter-active-class="transition ease-out duration-200"
+            enter-from-class="opacity-0"
+            enter-to-class="opacity-100"
+            leave-active-class="transition ease-in duration-150"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div
+                v-if="showModal"
+                class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                @click.self="closeModal"
+            >
+                <Transition
+                    enter-active-class="transition ease-out duration-200"
+                    enter-from-class="opacity-0 scale-95"
+                    enter-to-class="opacity-100 scale-100"
+                    leave-active-class="transition ease-in duration-150"
+                    leave-from-class="opacity-100 scale-100"
+                    leave-to-class="opacity-0 scale-95"
+                >
+                    <div
+                        v-if="showModal"
+                        class="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
+                    >
+                        <!-- Modal Header -->
+                        <div
+                            class="sticky top-0 flex items-center justify-between border-b border-zinc-200 bg-white px-6 py-4 dark:border-zinc-800 dark:bg-zinc-900"
+                        >
+                            <h2
+                                class="text-xl font-bold text-zinc-900 dark:text-zinc-50"
+                            >
+                                Edit Profile
+                            </h2>
+                            <button
+                                @click="closeModal"
+                                class="rounded-lg p-1 text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-6 w-6"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Modal Content -->
+                        <div class="space-y-6 p-6">
+                            <!-- Profile Photo Upload -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-semibold text-zinc-900 dark:text-zinc-50"
+                                >
+                                    Profile Picture
+                                </h3>
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-sky-500 via-indigo-500 to-blue-600 text-2xl font-bold text-white"
+                                    >
+                                        {{ console.log(imagePreview) }}
+                                        <img
+                                            v-if="imagePreview"
+                                            :src="imagePreview"
+                                            alt="Preview"
+                                            class="h-full w-full object-center"
+                                        />
+                                        <span v-else>{{
+                                            profileUser.name
+                                                .charAt(0)
+                                                .toUpperCase()
+                                        }}</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <label
+                                                class="block w-full cursor-pointer rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                                            >
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    @change="previewImage"
+                                                    class="hidden"
+                                                />
+                                                {{
+                                                    file
+                                                        ? file.name
+                                                        : 'Choose Photo'
+                                                }}
+                                            </label>
+
+                                            <button
+                                                type="button"
+                                                @click="deleteProfilePhoto"
+                                                class="flex cursor-pointer flex-col items-center gap-1 rounded-lg border border-red-300 bg-white p-1 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 dark:border-red-900 dark:bg-zinc-950 dark:text-red-300 dark:hover:bg-red-900/40"
+                                                title="Remove Profile Photo"
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="22"
+                                                    height="22"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        fill="currentColor"
+                                                        d="M7.616 20q-.667 0-1.141-.475T6 18.386V6h-.5q-.213 0-.356-.144T5 5.499t.144-.356T5.5 5H9q0-.31.23-.54t.54-.23h4.46q.31 0 .54.23T15 5h3.5q.213 0 .356.144t.144.357t-.144.356T18.5 6H18v12.385q0 .666-.475 1.14t-1.14.475zM17 6H7v12.385q0 .269.173.442t.443.173h8.769q.269 0 .442-.173t.173-.442zm-6.692 11q.213 0 .357-.144t.143-.356v-8q0-.213-.144-.356T10.307 8t-.356.144t-.143.356v8q0 .213.144.356q.144.144.356.144m3.385 0q.213 0 .356-.144t.143-.356v-8q0-.213-.144-.356Q13.904 8 13.692 8q-.213 0-.357.144t-.143.356v8q0 .213.144.356t.357.144M7 6v13z"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                        <p
+                                            class="mt-1 text-xs text-zinc-500 dark:text-zinc-400"
+                                        >
+                                            JPG, PNG or GIF. Max size 2MB
+                                        </p>
+                                        <p
+                                            v-if="
+                                                profileForm.errors
+                                                    .profile_photo_path
+                                            "
+                                            class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                        >
+                                            {{
+                                                profileForm.errors
+                                                    .profile_photo_path
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Name and Email Form -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-semibold text-zinc-900 dark:text-zinc-50"
+                                >
+                                    Personal Information
+                                </h3>
+                                <form @submit.prevent="updateProfile">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label
+                                                for="name"
+                                                class="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                                            >
+                                                Name
+                                            </label>
+                                            <input
+                                                id="name"
+                                                type="text"
+                                                v-model="profileForm.name"
+                                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                                                required
+                                            />
+                                            <p
+                                                v-if="profileForm.errors.name"
+                                                class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                            >
+                                                {{ profileForm.errors.name }}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                for="email"
+                                                class="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                                            >
+                                                Email
+                                            </label>
+                                            <input
+                                                id="email"
+                                                type="email"
+                                                v-model="profileForm.email"
+                                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                                                required
+                                            />
+                                            <p
+                                                v-if="profileForm.errors.email"
+                                                class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                            >
+                                                {{ profileForm.errors.email }}
+                                            </p>
+                                        </div>
+
+                                        <div class="flex justify-end">
+                                            <button
+                                                type="submit"
+                                                :disabled="
+                                                    profileForm.processing
+                                                "
+                                                class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-700 disabled:opacity-50 dark:bg-sky-500 dark:hover:bg-sky-600"
+                                            >
+                                                {{
+                                                    profileForm.processing
+                                                        ? 'Saving...'
+                                                        : 'Save Changes'
+                                                }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- Password Change Form -->
+                            <div
+                                class="space-y-4 border-t border-zinc-200 pt-6 dark:border-zinc-800"
+                            >
+                                <h3
+                                    class="text-lg font-semibold text-zinc-900 dark:text-zinc-50"
+                                >
+                                    Change Password
+                                </h3>
+                                <form @submit.prevent="updatePassword">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label
+                                                for="current_password"
+                                                class="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                                            >
+                                                Current Password
+                                            </label>
+                                            <input
+                                                id="current_password"
+                                                type="password"
+                                                v-model="
+                                                    passwordForm.current_password
+                                                "
+                                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                                                required
+                                            />
+                                            <p
+                                                v-if="
+                                                    passwordForm.errors
+                                                        .current_password
+                                                "
+                                                class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                            >
+                                                {{
+                                                    passwordForm.errors
+                                                        .current_password
+                                                }}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                for="password"
+                                                class="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                                            >
+                                                New Password
+                                            </label>
+                                            <input
+                                                id="password"
+                                                type="password"
+                                                v-model="passwordForm.password"
+                                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                                                required
+                                            />
+                                            <p
+                                                v-if="
+                                                    passwordForm.errors.password
+                                                "
+                                                class="mt-1 text-sm text-red-600 dark:text-red-400"
+                                            >
+                                                {{
+                                                    passwordForm.errors.password
+                                                }}
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label
+                                                for="password_confirmation"
+                                                class="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                                            >
+                                                Confirm New Password
+                                            </label>
+                                            <input
+                                                id="password_confirmation"
+                                                type="password"
+                                                v-model="
+                                                    passwordForm.password_confirmation
+                                                "
+                                                class="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-50 dark:focus:border-sky-400 dark:focus:ring-sky-400"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div class="flex justify-end">
+                                            <button
+                                                type="submit"
+                                                :disabled="
+                                                    passwordForm.processing
+                                                "
+                                                class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sky-700 disabled:opacity-50 dark:bg-sky-500 dark:hover:bg-sky-600"
+                                            >
+                                                {{
+                                                    passwordForm.processing
+                                                        ? 'Updating...'
+                                                        : 'Update Password'
+                                                }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </Transition>
+            </div>
+        </Transition>
     </div>
 </template>
 

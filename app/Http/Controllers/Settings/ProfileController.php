@@ -36,15 +36,21 @@ class ProfileController extends Controller
             'email' => 'required|email',
             'profile_photo_path' => 'nullable|image|max:2048'
         ]);
-        if($request->hasFile('profile_photo_path')){
-            if($user->profile_photo_path){
-                Storage::disk('public')->delete($user->getRawOriginal('profile_photo_path'));
-            }
-            $path=$request->profile_photo_path->store('profiles','public');
-            $updatedData['profile_photo_path'] = $path;
+
+        if ($request->delete_photo) {
+            $updatedData['profile_photo_path'] = null;
         }else{
-            $updatedData=collect($updatedData)->except('profile_photo_path')->toArray();
-        };
+            if($request->hasFile('profile_photo_path')){
+                if($user->profile_photo_path){
+                    Storage::disk('public')->delete($user->getRawOriginal('profile_photo_path'));
+                }
+                $path=$request->profile_photo_path->store('profiles','public');
+                $updatedData['profile_photo_path'] = $path;
+            }else{
+                $updatedData=collect($updatedData)->except('profile_photo_path')->toArray();
+            };
+        }
+        
         $user->fill($updatedData);
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
@@ -73,12 +79,5 @@ class ProfileController extends Controller
 
         return redirect('/');
     }
-    
-    public function destroyPhoto(User $user){
-        if ($user->profile_photo_path) {
-            $user->profile_photo_path = null;
-            $user->save();
-        }
-        return back();
-    }
+
 }

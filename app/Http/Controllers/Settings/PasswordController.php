@@ -27,6 +27,9 @@ class PasswordController extends Controller
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
             'password' => ['required', Password::defaults(), 'confirmed'],
+        ],[
+            'current_password.current_password' => 'လက်ရှိအသုံးပြုနေတဲ့ password မှားယွင်းနေပါသည်။',
+            'password.confirmed' => 'Password အသစ်နှစ်ခုကိုက်ညီမှုမရှိပါ။'
         ]);
 
         $request->user()->update([

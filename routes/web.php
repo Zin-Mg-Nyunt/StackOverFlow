@@ -41,4 +41,5 @@ Route::post('reset-password',[ResetPasswordController::class,'store'])->name('pa
 
 // update profile
 Route::post('/users/{user}/profile/update',[ProfileController::class,'update'])->name('update.profile');
+
 require __DIR__.'/settings.php';

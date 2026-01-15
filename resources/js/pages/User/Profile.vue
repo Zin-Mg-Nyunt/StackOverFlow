@@ -38,9 +38,8 @@ const formatNumber = (num) => {
 const profileForm = useForm({
     name: profileUser.name,
     email: profileUser.email,
-    profile_photo_path: profileUser.profile_photo_path
-        ? profileUser.profile_photo_path
-        : null,
+    profile_photo_path: null,
+    delete_photo: false,
 });
 // image preview
 let imagePreview = ref(profileUser.profile_photo_path);
@@ -54,7 +53,9 @@ const previewImage = (e) => {
 };
 
 const deleteProfilePhoto = () => {
-    profileForm.profile_photo_path = null;
+    imagePreview.value = null;
+    file.value = null;
+    profileForm.delete_photo = true;
 };
 
 const updateProfile = () => {
@@ -63,6 +64,11 @@ const updateProfile = () => {
         onSuccess: () => {
             showModal.value = false;
             file.value = null;
+            profileForm.defaults({
+                name: profileUser.name,
+                email: profileUser.email,
+                profile_photo_path: null,
+            });
             profileForm.reset();
         },
     });
@@ -80,6 +86,7 @@ const updatePassword = () => {
         preserveScroll: true,
         onSuccess: () => {
             passwordForm.reset();
+            closeModal();
         },
     });
 };
@@ -88,7 +95,9 @@ const closeModal = () => {
     file.value = null;
     showModal.value = false;
     profileForm.reset();
+    profileForm.clearErrors();
     passwordForm.reset();
+    passwordForm.clearErrors();
     imagePreview.value = profileUser.profile_photo_path;
 };
 </script>
@@ -580,7 +589,6 @@ const closeModal = () => {
                                     <div
                                         class="flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-sky-500 via-indigo-500 to-blue-600 text-2xl font-bold text-white"
                                     >
-                                        {{ console.log(imagePreview) }}
                                         <img
                                             v-if="imagePreview"
                                             :src="imagePreview"

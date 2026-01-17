@@ -29,7 +29,14 @@ const {
             <div class="flex items-start gap-3">
                 <!-- Author Info -->
                 <div class="flex w-full items-start gap-4">
+                    <img
+                        class="h-7 w-7 rounded-full"
+                        v-if="reply.author.profile_photo_path"
+                        :src="reply.author.profile_photo_path"
+                        alt=""
+                    />
                     <span
+                        v-else
                         class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-xs font-bold text-white"
                     >
                         {{ reply.author?.name.slice(0, 2).toUpperCase() }}

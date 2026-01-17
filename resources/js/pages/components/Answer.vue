@@ -169,13 +169,20 @@ let {
                             </span>
                         </p>
                         <div class="mt-2 flex items-center gap-2">
+                            <img
+                                class="h-8 w-8 rounded-full"
+                                v-if="answer.author.profile_photo_path"
+                                :src="answer.author.profile_photo_path"
+                                alt=""
+                            />
                             <span
+                                v-else
                                 class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-xs font-bold text-white"
                             >
                                 {{
                                     answer.author?.name
                                         .slice(0, 2)
-                                        .toUpperCase()
+                                        .toUpperCase() || 'U'
                                 }}
                             </span>
                             <div>

@@ -7,6 +7,7 @@ use App\Services\AnswerService;
 use App\Services\QuestionService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -44,6 +45,7 @@ class QuestionController extends Controller
     public function destroy(Question $question){
         Gate::authorize('delete',$question);
         $question->delete();
+        Storage::disk('public')->delete($question->getRawOriginal('image_url'));
         return redirect()->route('home')->with('success','Question deleted successfully');
     }
     public function edit(Question $question){

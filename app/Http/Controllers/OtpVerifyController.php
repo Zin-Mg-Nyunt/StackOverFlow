@@ -23,14 +23,12 @@ class OtpVerifyController extends Controller
         };
         $isVerified = Hash::check($request->otp,$record->token);
         if(!$isVerified){
-            return back()->withErrors(['otp'=>'This is incorrect OTP'])
-                        ->with(['email'=>$email,'status'=>$status]);
+            return back()->withErrors(['otp'=>'This is incorrect OTP']);
         }
         if(($expire_at - $now) <= 0){
-            return back()->withErrors(['otp'=>'This is invalid Otp'])
-                        ->with(['email'=>$email,'status'=>$status]);
+            return back()->withErrors(['otp'=>'This is invalid Otp']);
         }
-        session(['email'=>$email,'isVerified'=>true]);
+        session(['isVerified'=>true]);
         return redirect()->route('password.reset',['token'=> $request->otp]);
     }
 }

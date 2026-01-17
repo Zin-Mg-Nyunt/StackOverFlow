@@ -80,7 +80,14 @@ const handleDelete = (questionId) => {
                             class="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400"
                         >
                             <span class="flex items-center gap-2">
+                                <img
+                                    class="h-6 w-6 rounded-full"
+                                    v-if="question.author.profile_photo_path"
+                                    :src="question.author.profile_photo_path"
+                                    alt=""
+                                />
                                 <span
+                                    v-else
                                     class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-[10px] font-bold text-white"
                                 >
                                     {{

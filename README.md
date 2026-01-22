@@ -63,7 +63,11 @@ npm install
 cp .env.example .env
 php artisan key:generate
 ```
-(Note: Configure your Database and Mail driver in .env for the OTP feature to work.)
+> **Note:** For the OTP feature to work, configure your **Database** and **Mail** drivers in the `.env` file. 
+> 
+> Also, ensure that `APP_URL` and `FRONTEND_URL` in your `.env` match your local development URLs (e.g., `http://127.0.0.1:8000`). This is crucial for:
+> 1. **CORS Policy:** Avoiding "Access-Control-Allow-Origin" errors during API requests.
+> 2. **Session & Cookies:** Ensuring Sanctum/Fortify can handle authentication correctly between different origins.
 
 ### 4. Database Migration & Seeding
 ```bash

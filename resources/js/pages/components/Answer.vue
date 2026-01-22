@@ -67,12 +67,6 @@ let {
                                 }}
                             </button>
                             <button
-                                v-if="answer.authorized"
-                                class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
-                            >
-                                Edit
-                            </button>
-                            <button
                                 class="cursor-pointer text-sm text-zinc-600 transition hover:text-sky-600 dark:text-zinc-400 dark:hover:text-sky-400"
                                 @click="isReplying = !isReplying"
                             >

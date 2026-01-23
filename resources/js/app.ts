@@ -7,15 +7,22 @@ import { ZiggyVue } from 'ziggy-js';
 import { initializeTheme } from './composables/useAppearance';
 import Layout from './layouts/Layout.vue';
 import { Ziggy } from './ziggy.js';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Stack Overflow';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
     resolve: (name) => {
-        const pages = import.meta.glob('./pages/**/*.vue', { eager: true });
-        let page = pages[`./pages/${name}.vue`];
-        page.default.layout = page.default.layout === null ? null : Layout;
+        const page = resolvePageComponent(
+            `./pages/${name}.vue`,
+            import.meta.glob('./pages/**/*.vue')
+        );
+        
+        // Layout သတ်မှတ်တာကို .then() နဲ့ လုပ်ရမယ် (ဘာလို့ဆို resolvePageComponent က Promise ပြန်လို့)
+        page.then((module) => {
+            module.default.layout = module.default.layout === null ? null : Layout;
+        });
         return page;
     },
     setup({ el, App, props, plugin }) {
